@@ -88,31 +88,35 @@ namespace HexGridDungeon.WorldGeneration
         private void GenerateRooms()
         {
             RoomGenerator roomGenerator = new RoomGenerator(MinRoomSize, MaxRoomSize);
+            int RoomTries = Math.Max(stage.Width, stage.Height);
 
-            // Initial room square
-            int TrySize = Rand.GetInstance().Next(MinRoomSize, (int)Math.Floor(MaxRoomSize*0.75));
-            int TrySizeX = TrySize;
-            int TrySizeY = TrySize;
-
-            // rectangle modifier
-            if(Rand.GetInstance().Next(0, 100) <= 50)
+            for (int i = 0; i < RoomTries; i++)
             {
-                if(Rand.GetInstance().Next() % 2 == 0)
-                    TrySizeX += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeX));
-                else
-                    TrySizeY += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeY));
-            }
+                // Initial room square
+                int TrySize = Rand.GetInstance().Next(MinRoomSize, (int)Math.Floor(MaxRoomSize * 0.75));
+                int TrySizeX = TrySize;
+                int TrySizeY = TrySize;
 
-            // room coordinates
-            int TryPlaceX = Rand.GetInstance().Next(0, stage.Width - 1);
-            int TryPlaceY = Rand.GetInstance().Next(0, stage.Height - 1);
+                // rectangle modifier
+                if (Rand.GetInstance().Next(0, 100) <= 50)
+                {
+                    if (Rand.GetInstance().Next() % 2 == 0)
+                        TrySizeX += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeX));
+                    else
+                        TrySizeY += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeY));
+                }
 
-            // check new room.
-            if(IsValidRoomPlacement(TryPlaceX, TryPlaceY, TrySizeX, TrySizeY))
-            {
-                HexGrid room = roomGenerator.GenerateNewRoom(TrySizeX, TryPlaceY);
-                if(TryPlaceRoom(room))
-                    DungeonRooms.Add(room);
+                // room coordinates
+                int TryPlaceX = Rand.GetInstance().Next(0, stage.Width - 1);
+                int TryPlaceY = Rand.GetInstance().Next(0, stage.Height - 1);
+
+                // check new room.
+                if (IsValidRoomPlacement(TryPlaceX, TryPlaceY, TrySizeX, TrySizeY))
+                {
+                    HexGrid room = roomGenerator.GenerateNewRoom(TrySizeX, TryPlaceY);
+                    if (TryPlaceRoom(room))
+                        DungeonRooms.Add(room);
+                }
             }
         }
 
