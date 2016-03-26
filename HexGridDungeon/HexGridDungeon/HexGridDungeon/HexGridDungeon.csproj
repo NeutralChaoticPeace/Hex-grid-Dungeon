@@ -65,6 +65,7 @@
     <Compile Include="Tiles\Tile.cs" />
     <Compile Include="Tiles\TileTypes\Floor.cs" />
     <Compile Include="Tiles\TileTypes\Wall.cs" />
+    <Compile Include="WorldGeneration\DungeonGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

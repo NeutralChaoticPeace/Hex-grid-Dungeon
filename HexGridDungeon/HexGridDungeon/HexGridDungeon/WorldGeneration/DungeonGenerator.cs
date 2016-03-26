@@ -24,6 +24,11 @@ namespace HexGridDungeon.WorldGeneration
             get { return stage.Height; }
         }
 
+        public HexGrid Stage
+        {
+            get { return stage; }
+        }
+
 
         // Constructors
         public DungeonGenerator(Game1 game)
@@ -53,6 +58,14 @@ namespace HexGridDungeon.WorldGeneration
 
 
         // Procedural Generation
+        private void GenerateBorderWalls()
+        {
+            for(int x = 0; x < stage.Width; x++)
+            {
+
+            }
+        }
+
         private void GenerateRooms()
         {
 
