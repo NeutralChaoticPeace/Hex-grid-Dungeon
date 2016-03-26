@@ -12,6 +12,19 @@ namespace HexGridDungeon.WorldGeneration
         private HexGrid stage;
 
 
+
+        // Properties
+        public int Width
+        {
+            get { return stage.Width; }
+        }
+
+        public int Height
+        {
+            get { return stage.Height; }
+        }
+
+
         // Constructors
         public DungeonGenerator(Game1 game)
         {
@@ -48,6 +61,12 @@ namespace HexGridDungeon.WorldGeneration
         private void GeneratePaths()
         {
 
+        }
+
+
+        private void DrawState()
+        {
+            //gameRef.DrawState(stage);
         }
 
     }
