@@ -18,11 +18,11 @@ namespace HexGridDungeon
         // properties
         public int Width
         {
-            get { return Grid.GetLength(0); }
+            get { return Grid.GetLength(0) - 1; }
         }
         public int Height
         {
-            get { return Grid.GetLength(1); }
+            get { return Grid.GetLength(1) - 1; }
         }
 
         // Contructors

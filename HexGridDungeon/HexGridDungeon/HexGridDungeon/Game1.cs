@@ -44,7 +44,7 @@ namespace HexGridDungeon
 			base.Initialize();
             this.IsMouseVisible = true;
 
-			hexDungeon = new DungeonGenerator(21, 19, this);
+			hexDungeon = new DungeonGenerator(7, 5, this);
 		}
 
 		/// <summary>

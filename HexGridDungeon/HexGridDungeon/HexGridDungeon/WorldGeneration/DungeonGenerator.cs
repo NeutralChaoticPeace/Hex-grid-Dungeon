@@ -53,6 +53,8 @@ namespace HexGridDungeon.WorldGeneration
         private void Initialize(Game1 game)
         {
             gameRef = game;
+
+            GenerateBorderWalls();
         }
 
 
@@ -61,12 +63,14 @@ namespace HexGridDungeon.WorldGeneration
         {
             for(int x = 0; x < stage.Width; x++)
             {
-
+                CreateWall(new Tuple<int, int>(0, stage.Height));
+                CreateWall(new Tuple<int, int>(stage.Width, stage.Height));
             }
 
             for (int y = 0; y < stage.Height; y++)
             {
-
+                CreateWall(new Tuple<int, int>(stage.Width, 0));
+                CreateWall(new Tuple<int, int>(stage.Width, stage.Height));
             }
         }
 
@@ -85,6 +89,16 @@ namespace HexGridDungeon.WorldGeneration
         {
             //gameRef.DrawState(stage);
         }
+
+
+        // Tile Specific Operations
+        private void CreateWall(Tuple<int, int> coordinate)
+        {
+            if (stage.IsValidCoordinate(coordinate))
+                if (stage.SetTile(coordinate, new Tiles.TileTypes.Wall()))
+                    DrawState();
+        }
+
 
     }
 }
