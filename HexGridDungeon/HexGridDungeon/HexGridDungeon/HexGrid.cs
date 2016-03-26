@@ -162,7 +162,7 @@ namespace HexGridDungeon
 		{
 			for (int x = _x; x < _width + _x; x++)
 			{
-				for (int y = _y = 0; y < _height + _y; y++)
+				for (int y = _y; y < _height + _y; y++)
 				{
 					switch (_tile.ToLower())
 					{

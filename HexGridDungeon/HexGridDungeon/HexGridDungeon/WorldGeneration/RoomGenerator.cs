@@ -49,7 +49,12 @@ namespace HexGridDungeon.WorldGeneration
 			int poolWidth = Rand.GetInstance().Next(1, height - 4);
 			int poolHeight = Rand.GetInstance().Next(1, height - 4);
 
-			room.SetArea("liquid", poolWidth, poolHeight, 2, 2);
+			room.SetArea("floor", width - 2, height - 2, 1, 1);
+
+			int poolX = Rand.GetInstance().Next(2, width - poolWidth - 2);
+			int poolY = Rand.GetInstance().Next(2, height - poolHeight - 2);
+
+			room.SetArea("liquid", poolWidth, poolHeight, poolX, poolY);
 
             return room;
         }
