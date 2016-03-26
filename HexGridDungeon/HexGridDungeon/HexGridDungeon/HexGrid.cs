@@ -148,6 +148,48 @@ namespace HexGridDungeon
                 return Grid[coordinate.Item1, coordinate.Item2];
             else
                 return null;
-        }
-    }
+		}
+		
+		// Procedural Generation
+		public void GenerateBorderWalls()
+		{
+			for (int x = 0; x < Width; x++)
+			{
+				CreateWall(new Tuple<int, int>(x, 0));
+				CreateWall(new Tuple<int, int>(x, Height - 1));
+			}
+
+			for (int y = 0; y < Height; y++)
+			{
+				CreateWall(new Tuple<int, int>(0, y));
+				CreateWall(new Tuple<int, int>(Width - 1, y));
+			}
+		}
+
+		private void CreateLiquid(string type, Tuple<int, int> coordinate)
+		{
+			if (IsValidCoordinate(coordinate))
+			{
+				switch (type.ToLower())
+				{
+					case "water": SetTile(coordinate, new Tiles.TileTypes.Liquid());
+						break;
+					default: break;
+				}
+			}
+		}
+
+		private void CreateFloor(Tuple<int, int> coordinate)
+		{
+			if (IsValidCoordinate(coordinate))
+				SetTile(coordinate, new Tiles.TileTypes.Liquid());
+		}
+
+		// Tile Specific Operations
+		private void CreateWall(Tuple<int, int> coordinate)
+		{
+			if (IsValidCoordinate(coordinate))
+				SetTile(coordinate, new Tiles.TileTypes.Wall());
+		}
+	}
 }
