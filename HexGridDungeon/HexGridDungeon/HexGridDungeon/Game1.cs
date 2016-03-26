@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
+
+
 namespace HexGridDungeon
 {
 	/// <summary>
@@ -18,7 +20,8 @@ namespace HexGridDungeon
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
-
+		Texture2D SpriteTexture;
+		HexGrid myHexGrid = new HexGrid(20);
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -46,6 +49,7 @@ namespace HexGridDungeon
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
+			SpriteTexture = this.Content.Load<Texture2D>("BlankHexShape");
 
 			// TODO: use this.Content to load your game content here
 		}
@@ -82,10 +86,45 @@ namespace HexGridDungeon
 		protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
+			spriteBatch.Begin();
 
+			Tuple<int, int> pos3Tup = XYConverter(0, 0);
+			Vector2 pos;
+
+			for (int i = 0; i < ; i++)
+			{
+				for (int j = 0; j < 10; j++)
+				{
+					pos3Tup = XYConverter(i, j);
+					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
+					spriteBatch.Draw(SpriteTexture, pos, Color.White);
+				}
+			}
+
+			spriteBatch.End();
+			base.Draw(gameTime);
 			// TODO: Add your drawing code here
 
 			base.Draw(gameTime);
+		}
+
+		protected static Tuple<int, int> XYConverter(int x, int y)
+		{
+			int newX = 0;
+			int newY = 0;
+
+			if (x % 2 == 0)
+			{
+				newX = x * 24;
+				newY = y * 32;
+			}
+			else if (x % 2 == 1)
+			{
+				newX = x * 24;
+				newY = y * 32 + 16;
+			}
+
+			return new Tuple<int, int>(newX, newY);
 		}
 	}
 }
