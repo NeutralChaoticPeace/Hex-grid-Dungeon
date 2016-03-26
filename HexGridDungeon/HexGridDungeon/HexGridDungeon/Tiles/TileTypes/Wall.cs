@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace HexGridDungeon.Tiles
+namespace HexGridDungeon.Tiles.TileTypes
 {
-    public abstract class Tile
+    public class Wall : Tile
     {
-        protected string sprite;
+
 
     }
 }
