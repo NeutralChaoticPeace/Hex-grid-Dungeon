@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-
+using HexGridDungeon.WorldGeneration;
 
 namespace HexGridDungeon
 {
@@ -21,10 +21,8 @@ namespace HexGridDungeon
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		Texture2D SpriteTexture;
-
-		// THIS IS A TEMP THAT IS USED FOR TESTING PURPOSES
-		HexGrid myHexGrid = new HexGrid(21, 13);
-
+		
+		DungeonGenerator hexDungeon;
 		int spriteHeight, spriteWidth;
 
 		public Game1()
@@ -44,8 +42,9 @@ namespace HexGridDungeon
 			// TODO: Add your initialization logic here
 
 			base.Initialize();
-
             this.IsMouseVisible = true;
+
+			hexDungeon = new DungeonGenerator(21, 19, this);
 		}
 
 		/// <summary>
@@ -99,9 +98,9 @@ namespace HexGridDungeon
 			Tuple<int, int> pos3Tup = XYConverter(0, 0);
 			Vector2 pos;
 
-			for (int i = 0; i < myHexGrid.Width; i++)
+			for (int i = 0; i < hexDungeon.Width; i++)
 			{
-				for (int j = 0; j < myHexGrid.Height; j++)
+				for (int j = 0; j < hexDungeon.Height; j++)
 				{
 
 					pos3Tup = XYConverter(i, j);
@@ -111,10 +110,31 @@ namespace HexGridDungeon
 			}
 
 			spriteBatch.End();
-			base.Draw(gameTime);
 			// TODO: Add your drawing code here
 
 			base.Draw(gameTime);
+		}
+
+		public void DrawState(HexGrid _hexGrid)
+		{
+			GraphicsDevice.Clear(Color.Black);
+			spriteBatch.Begin();
+
+			Tuple<int, int> pos3Tup = XYConverter(0, 0);
+			Vector2 pos;
+
+			for (int i = 0; i < _hexGrid.Width; i++)
+			{
+				for (int j = 0; j < _hexGrid.Height; j++)
+				{
+
+					pos3Tup = XYConverter(i, j);
+					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
+					spriteBatch.Draw(SpriteTexture, pos, Color.White);
+				}
+			}
+
+			spriteBatch.End();
 		}
 
 		protected Tuple<int, int> XYConverter(int x, int y)
