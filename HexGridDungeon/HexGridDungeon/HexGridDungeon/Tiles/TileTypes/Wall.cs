@@ -9,7 +9,7 @@ namespace HexGridDungeon.Tiles.TileTypes
     {
         public Wall()
         {
-            spriteID = "FloorHexSprite";
+            spriteID = "WallHexSprite";
         }
     }
 }
