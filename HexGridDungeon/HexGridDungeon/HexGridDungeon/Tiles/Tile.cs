@@ -7,7 +7,12 @@ namespace HexGridDungeon.Tiles
 {
     public abstract class Tile
     {
-        protected string sprite;
+        protected string spriteID;
+
+        public string GetSpriteID
+        {
+            get { return spriteID; }
+        }
 
     }
 }
