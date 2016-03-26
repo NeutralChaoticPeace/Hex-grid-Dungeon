@@ -18,11 +18,11 @@ namespace HexGridDungeon
         // properties
         public int Width
         {
-            get { return Grid.GetLength(0) - 1; }
+            get { return Grid.GetLength(0); }
         }
         public int Height
         {
-            get { return Grid.GetLength(1) - 1; }
+            get { return Grid.GetLength(1); }
         }
 
         // Contructors
@@ -117,11 +117,13 @@ namespace HexGridDungeon
 
         public bool IsValidCoordinate(Tuple<int, int> coordinate)
         {
+			int x = Grid.GetLength(0);
+			int y = Grid.GetLength(1);
             // out of lower bound
             if (coordinate.Item1 < 0 || coordinate.Item2 < 0)
                 return false;
             // out of upper bround
-            else if (coordinate.Item1 > Grid.GetLength(0) || coordinate.Item2 > Grid.GetLength(1))
+            else if (coordinate.Item1 >= Grid.GetLength(0) || coordinate.Item2 >= Grid.GetLength(1))
                 return false;
             else
                 return true;

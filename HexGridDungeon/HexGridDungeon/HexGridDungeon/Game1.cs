@@ -55,7 +55,7 @@ namespace HexGridDungeon
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
-			SpriteTexture = this.Content.Load<Texture2D>("BlankHexShape");
+			SpriteTexture = this.Content.Load<Texture2D>("NullHexShape");
 
 			spriteWidth = SpriteTexture.Width;
 			spriteHeight = SpriteTexture.Height;
@@ -98,9 +98,9 @@ namespace HexGridDungeon
 			Tuple<int, int> pos3Tup = XYConverter(0, 0);
 			Vector2 pos;
 
-			for (int i = 0; i <= hexDungeon.Width; i++)
+			for (int i = 0; i < hexDungeon.Width; i++)
 			{
-				for (int j = 0; j <= hexDungeon.Height; j++)
+				for (int j = 0; j < hexDungeon.Height; j++)
 				{
 
 					pos3Tup = XYConverter(i, j);

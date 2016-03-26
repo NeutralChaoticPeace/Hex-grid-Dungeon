@@ -63,14 +63,14 @@ namespace HexGridDungeon.WorldGeneration
         {
             for(int x = 0; x < stage.Width; x++)
             {
-                CreateWall(new Tuple<int, int>(0, stage.Height));
-                CreateWall(new Tuple<int, int>(stage.Width, stage.Height));
+                CreateWall(new Tuple<int, int>(x, 0));
+                CreateWall(new Tuple<int, int>(x, stage.Height));
             }
 
             for (int y = 0; y < stage.Height; y++)
             {
-                CreateWall(new Tuple<int, int>(stage.Width, 0));
-                CreateWall(new Tuple<int, int>(stage.Width, stage.Height));
+                CreateWall(new Tuple<int, int>(0, y));
+                CreateWall(new Tuple<int, int>(stage.Width, y));
             }
         }
 
