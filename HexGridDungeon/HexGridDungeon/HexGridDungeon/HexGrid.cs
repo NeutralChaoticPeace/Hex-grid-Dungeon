@@ -117,6 +117,25 @@ namespace HexGridDungeon
                 return true;
         }
 
-        // SET / GET TILE
+
+        // Tile Get/Set
+        public bool SetTile(Tuple<int, int> coordinate, Tile NewTile)
+        {
+            if(IsValidCoordinate(coordinate))
+            {
+                Grid[coordinate.Item1, coordinate.Item2] = NewTile;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public Tile GetTile(Tuple<int, int> coordinate)
+        {
+            if (IsValidCoordinate(coordinate))
+                return Grid[coordinate.Item1, coordinate.Item2];
+            else
+                return null;
+        }
     }
 }
