@@ -21,7 +21,7 @@ namespace HexGridDungeon
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		Texture2D SpriteTexture;
-		HexGrid myHexGrid = new HexGrid(20);
+		HexGrid myHexGrid = new HexGrid(21, 13);
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -39,6 +39,8 @@ namespace HexGridDungeon
 			// TODO: Add your initialization logic here
 
 			base.Initialize();
+
+            this.IsMouseVisible = true;
 		}
 
 		/// <summary>
@@ -91,9 +93,9 @@ namespace HexGridDungeon
 			Tuple<int, int> pos3Tup = XYConverter(0, 0);
 			Vector2 pos;
 
-			for (int i = 0; i < ; i++)
+			for (int i = 0; i < myHexGrid.Width; i++)
 			{
-				for (int j = 0; j < 10; j++)
+				for (int j = 0; j < myHexGrid.Height; j++)
 				{
 					pos3Tup = XYConverter(i, j);
 					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);

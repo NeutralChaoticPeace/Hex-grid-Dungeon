@@ -63,6 +63,8 @@
     <Compile Include="Game1.cs" />
     <Compile Include="Rand.cs" />
     <Compile Include="Tiles\Tile.cs" />
+    <Compile Include="Tiles\TileTypes\Floor.cs" />
+    <Compile Include="Tiles\TileTypes\Wall.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
