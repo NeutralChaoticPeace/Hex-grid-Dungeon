@@ -12,7 +12,6 @@ namespace HexGridDungeon.WorldGeneration
         private HexGrid stage;
 
 
-
         // Properties
         public int Width
         {
@@ -61,6 +60,11 @@ namespace HexGridDungeon.WorldGeneration
         private void GenerateBorderWalls()
         {
             for(int x = 0; x < stage.Width; x++)
+            {
+
+            }
+
+            for (int y = 0; y < stage.Height; y++)
             {
 
             }
