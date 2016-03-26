@@ -21,7 +21,12 @@ namespace HexGridDungeon
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		Texture2D SpriteTexture;
+
+		// THIS IS A TEMP THAT IS USED FOR TESTING PURPOSES
 		HexGrid myHexGrid = new HexGrid(21, 13);
+
+		int spriteHeight, spriteWidth;
+
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -53,7 +58,8 @@ namespace HexGridDungeon
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			SpriteTexture = this.Content.Load<Texture2D>("BlankHexShape");
 
-			// TODO: use this.Content to load your game content here
+			spriteWidth = SpriteTexture.Width;
+			spriteHeight = SpriteTexture.Height;
 		}
 
 		/// <summary>
@@ -87,7 +93,7 @@ namespace HexGridDungeon
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+			GraphicsDevice.Clear(Color.Black);
 			spriteBatch.Begin();
 
 			Tuple<int, int> pos3Tup = XYConverter(0, 0);
@@ -97,6 +103,7 @@ namespace HexGridDungeon
 			{
 				for (int j = 0; j < myHexGrid.Height; j++)
 				{
+
 					pos3Tup = XYConverter(i, j);
 					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
 					spriteBatch.Draw(SpriteTexture, pos, Color.White);
@@ -110,23 +117,28 @@ namespace HexGridDungeon
 			base.Draw(gameTime);
 		}
 
-		protected static Tuple<int, int> XYConverter(int x, int y)
+		protected Tuple<int, int> XYConverter(int x, int y)
 		{
 			int newX = 0;
 			int newY = 0;
 
 			if (x % 2 == 0)
 			{
-				newX = x * 24;
-				newY = y * 32;
+				newX = (int)(x * (0.75 * spriteWidth));
+				newY = (int)(y * spriteWidth);
 			}
 			else if (x % 2 == 1)
 			{
-				newX = x * 24;
-				newY = y * 32 + 16;
+				newX = (int)(x * (0.75 * spriteWidth));
+				newY = (int)(y * spriteWidth + (spriteWidth / 2));
 			}
 
 			return new Tuple<int, int>(newX, newY);
+		}
+
+		protected Texture2D GetSpriteTexture(string texture)
+		{
+			return this.Content.Load<Texture2D>(texture);
 		}
 	}
 }
