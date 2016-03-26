@@ -44,7 +44,7 @@ namespace HexGridDungeon
 			base.Initialize();
             this.IsMouseVisible = true;
 
-			hexDungeon = new DungeonGenerator(7, 5, this);
+			hexDungeon = new DungeonGenerator(7, 7, this);
 		}
 
 		/// <summary>
@@ -134,8 +134,11 @@ namespace HexGridDungeon
 
 					pos3Tup = XYConverter(i, j);
 					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
-					SpriteTexture = GetSpriteTexture(hexDungeon.Stage.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
-					spriteBatch.Draw(SpriteTexture, pos, Color.White);
+                    if (_hexGrid.GetTile(new Tuple<int, int>(i, j)) != null)
+                        SpriteTexture = GetSpriteTexture(_hexGrid.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
+                    else
+                        SpriteTexture = this.Content.Load<Texture2D>("NullHexShape");
+                    spriteBatch.Draw(SpriteTexture, pos, Color.White);
 				}
 			}
 

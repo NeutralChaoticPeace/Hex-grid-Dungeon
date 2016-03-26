@@ -55,6 +55,8 @@ namespace HexGridDungeon.WorldGeneration
             gameRef = game;
 
             GenerateBorderWalls();
+            CreateFloor(new Tuple<int, int>(5, 5));
+
         }
 
 
@@ -85,20 +87,20 @@ namespace HexGridDungeon.WorldGeneration
         }
 
 
-        private void DrawState()
-        {
-            //gameRef.DrawState(stage);
-        }
 
 
         // Tile Specific Operations
         private void CreateWall(Tuple<int, int> coordinate)
         {
             if (stage.IsValidCoordinate(coordinate))
-                if (stage.SetTile(coordinate, new Tiles.TileTypes.Wall()))
-                    DrawState();
+                stage.SetTile(coordinate, new Tiles.TileTypes.Wall());
         }
 
+        private void CreateFloor(Tuple<int, int> coordinate)
+        {
+            if (stage.IsValidCoordinate(coordinate))
+                stage.SetTile(coordinate, new Tiles.TileTypes.Floor());
+        }
 
     }
 }
