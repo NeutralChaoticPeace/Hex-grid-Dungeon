@@ -30,13 +30,6 @@
     <Reference Include="Microsoft.Xna.Framework.Content.Pipeline.VideoImporters, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FloorHexSprite.png">
-      <Name>FloorHexSprite</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="NullHexShape.png">
       <Name>NullHexShape</Name>
       <Importer>TextureImporter</Importer>
@@ -46,6 +39,13 @@
   <ItemGroup>
     <Compile Include="WallHexSprite.png">
       <Name>WallHexSprite</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FloorHexSprite.png">
+      <Name>FloorHexSprite</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
