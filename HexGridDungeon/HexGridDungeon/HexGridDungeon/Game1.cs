@@ -98,13 +98,14 @@ namespace HexGridDungeon
 			Tuple<int, int> pos3Tup = XYConverter(0, 0);
 			Vector2 pos;
 
-			for (int i = 0; i < hexDungeon.Width; i++)
+			for (int i = 0; i <= hexDungeon.Width; i++)
 			{
-				for (int j = 0; j < hexDungeon.Height; j++)
+				for (int j = 0; j <= hexDungeon.Height; j++)
 				{
 
 					pos3Tup = XYConverter(i, j);
 					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
+					SpriteTexture = GetSpriteTexture(hexDungeon.Stage.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
 					spriteBatch.Draw(SpriteTexture, pos, Color.White);
 				}
 			}
@@ -130,6 +131,7 @@ namespace HexGridDungeon
 
 					pos3Tup = XYConverter(i, j);
 					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
+					SpriteTexture = GetSpriteTexture(hexDungeon.Stage.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
 					spriteBatch.Draw(SpriteTexture, pos, Color.White);
 				}
 			}
@@ -158,7 +160,10 @@ namespace HexGridDungeon
 
 		protected Texture2D GetSpriteTexture(string texture)
 		{
-			return this.Content.Load<Texture2D>(texture);
+			if (texture == null)
+				return this.Content.Load<Texture2D>("NullHexShape");
+			else
+				return this.Content.Load<Texture2D>(texture);
 		}
 	}
 }
