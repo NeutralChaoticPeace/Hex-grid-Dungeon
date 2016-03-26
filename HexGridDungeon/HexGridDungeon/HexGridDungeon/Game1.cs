@@ -25,6 +25,9 @@ namespace HexGridDungeon
 		DungeonGenerator hexDungeon;
 		int spriteHeight, spriteWidth;
 
+
+		HexGrid stage;
+
 		public Game1()
 		{
 			graphics = new GraphicsDeviceManager(this);
@@ -44,7 +47,9 @@ namespace HexGridDungeon
 			base.Initialize();
             this.IsMouseVisible = true;
 
-			hexDungeon = new DungeonGenerator(7, 7, this);
+			//hexDungeon = new DungeonGenerator(7, 7, this);
+			RoomGenerator myRoomGenerator = new RoomGenerator(1, 20);
+			stage = myRoomGenerator.GenerateNewRoom(10, 10);
 		}
 
 		/// <summary>
@@ -98,15 +103,15 @@ namespace HexGridDungeon
 			Tuple<int, int> pos3Tup = XYConverter(0, 0);
 			Vector2 pos;
 
-			for (int i = 0; i < hexDungeon.Width; i++)
+			for (int i = 0; i < stage.Width; i++)
 			{
-				for (int j = 0; j < hexDungeon.Height; j++)
+				for (int j = 0; j < stage.Height; j++)
 				{
 
 					pos3Tup = XYConverter(i, j);
 					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
-                    if (hexDungeon.Stage.GetTile(new Tuple<int, int>(i, j)) != null)
-                        SpriteTexture = GetSpriteTexture(hexDungeon.Stage.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
+                    if (stage.GetTile(new Tuple<int, int>(i, j)) != null)
+                        SpriteTexture = GetSpriteTexture(stage.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
                     else
                         SpriteTexture = this.Content.Load<Texture2D>("NullHexShape");
                     spriteBatch.Draw(SpriteTexture, pos, Color.White);

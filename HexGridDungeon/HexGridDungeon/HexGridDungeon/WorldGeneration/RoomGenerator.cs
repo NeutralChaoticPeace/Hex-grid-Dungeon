@@ -31,31 +31,25 @@ namespace HexGridDungeon.WorldGeneration
         } 
 
 
-        private HexGrid BuildSimpleRoom(int width, int height)
+        public HexGrid BuildSimpleRoom(int width, int height)
         {
 			HexGrid room = new HexGrid(width, height);
-			room.GenerateBorderWalls();
+			room.SetBorder(new Tiles.TileTypes.Wall());
+			room.SetArea("floor", width - 2, height - 2, 1, 1);			
 
             return room;
         }
 
 
-        private HexGrid BuildWaterRoom(int width, int height)
+        public HexGrid BuildWaterRoom(int width, int height)
         {
 			HexGrid room = new HexGrid(width, height);
-			room.GenerateBorderWalls();
+			room.SetBorder(new Tiles.TileTypes.Wall());
 
-			int poolWidth = Rand.GetInstance().Next(width - 2, height - 2);
-			int poolHeight = Rand.GetInstance().Next(width - 2, height - 2);
+			int poolWidth = Rand.GetInstance().Next(1, height - 4);
+			int poolHeight = Rand.GetInstance().Next(1, height - 4);
 
-			for (int i = 2; i < poolWidth; i++)
-			{
-				for (int j = 2; j < poolHeight; j++)
-				{
-					if (room.IsValidCoordinate(new Tuple<int, int>(i, j)))
-                        room.SetTile(new Tuple<int, int>(i, j), new Tiles.TileTypes.Liquid());
-				}
-			}
+			room.SetArea("liquid", poolWidth, poolHeight, 2, 2);
 
             return room;
         }

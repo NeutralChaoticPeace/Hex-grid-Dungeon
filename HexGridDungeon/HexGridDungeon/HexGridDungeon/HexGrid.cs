@@ -142,28 +142,49 @@ namespace HexGridDungeon
                 return false;
         }
 
-        public Tile GetTile(Tuple<int, int> coordinate)
+		// Procedural Generation
+		public void SetBorder(Tile _tile)
+		{
+			for (int x = 0; x < Width; x++)
+			{
+				SetTile(new Tuple<int, int>(x, 0), _tile);
+				SetTile(new Tuple<int, int>(x, Height - 1), _tile);
+			}
+
+			for (int y = 0; y < Height; y++)
+			{
+				SetTile(new Tuple<int, int>(0, y), _tile);
+				SetTile(new Tuple<int, int>(Width - 1, y), _tile);
+			}
+		}
+
+		public void SetArea(string _tile, int _width, int _height, int _x, int _y)
+		{
+			for (int x = _x; x < _width + _x; x++)
+			{
+				for (int y = _y = 0; y < _height + _y; y++)
+				{
+					switch (_tile.ToLower())
+					{
+						case "floor": SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Floor());
+							break;
+						case "wall": SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
+							break;
+						case "liquid": SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Liquid());
+							break;
+						default: break;
+
+					}
+				}
+			}
+		}
+
+		public Tile GetTile(Tuple<int, int> coordinate)
         {
             if (IsValidCoordinate(coordinate))
                 return Grid[coordinate.Item1, coordinate.Item2];
             else
                 return null;
-		}
-		
-		// Procedural Generation
-		public void GenerateBorderWalls()
-		{
-			for (int x = 0; x < Width; x++)
-			{
-				CreateWall(new Tuple<int, int>(x, 0));
-				CreateWall(new Tuple<int, int>(x, Height - 1));
-			}
-
-			for (int y = 0; y < Height; y++)
-			{
-				CreateWall(new Tuple<int, int>(0, y));
-				CreateWall(new Tuple<int, int>(Width - 1, y));
-			}
 		}
 
 		private void CreateLiquid(string type, Tuple<int, int> coordinate)
