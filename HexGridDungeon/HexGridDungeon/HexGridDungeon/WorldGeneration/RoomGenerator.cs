@@ -67,20 +67,27 @@ namespace HexGridDungeon.WorldGeneration
         {
             // initial direction priority
             Dictionary<int, HexGrid.Direction> DirectionPriority = new Dictionary<int, HexGrid.Direction>();
+            HashSet<Tuple<int, int>> VisitedLocations = new HashSet<Tuple<int, int>>();
+
             Tuple<int, int> StartLocation = new Tuple<int, int>(0, 0);
             Tuple<int, int> CurrentLocation = StartLocation;
+            Tuple<int, int> NextLocation;
+
             SetPrioityUpClockwise(DirectionPriority);
 
             _room.SetTile(StartLocation, new Tiles.TileTypes.Wall());
+            VisitedLocations.Add(StartLocation);
 
-            for(int j = 0; j < 100; j++)
+            for(int j = 0; j < 1000; j++)
             {
                 for(int i = 1; i <= 6; i++)
                 {
-                    if (_room.GetNextValidStep(CurrentLocation, DirectionPriority[i]) != null)
+                    NextLocation = _room.GetNextValidStep(CurrentLocation, DirectionPriority[i]);
+                    // if next location is a new location that is valid...
+                    if (NextLocation != null && !VisitedLocations.Contains(NextLocation))
                     {
                         // base case:
-                        if(_room.GetNextValidStep(CurrentLocation, DirectionPriority[i]) == StartLocation)
+                        if(NextLocation == StartLocation)
                         {
                             _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
                             return;
@@ -88,11 +95,13 @@ namespace HexGridDungeon.WorldGeneration
 
                         // otherwise:
                         _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
-                        CurrentLocation = _room.GetNextValidStep(CurrentLocation, DirectionPriority[i]);
+                        VisitedLocations.Add(CurrentLocation);
+                        CurrentLocation = NextLocation;
+                        
 
                         // when to switch direction priority
                         if (i >= 5)
-                            SetDownClockwisePriority(DirectionPriority);
+                            SetPriorityDownClockwise(DirectionPriority);
 
                         break;
                     }
@@ -112,9 +121,10 @@ namespace HexGridDungeon.WorldGeneration
             _Dictionary.Add(6, HexGrid.Direction.LeftUp);
         }
 
-        private void SetDownClockwisePriority(Dictionary<int, HexGrid.Direction> _Dictionary)
+        private void SetPriorityDownClockwise(Dictionary<int, HexGrid.Direction> _Dictionary)
         {
             _Dictionary.Clear();
+
             _Dictionary.Add(1, HexGrid.Direction.Down);
             _Dictionary.Add(2, HexGrid.Direction.LeftDown);
             _Dictionary.Add(3, HexGrid.Direction.LeftUp);

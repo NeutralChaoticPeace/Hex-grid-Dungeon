@@ -9,7 +9,7 @@ namespace HexGridDungeon.WorldGeneration
     {
         // Data
         private static readonly int MinRoomSize = 5;
-        private static readonly int MaxRoomSize = 15;
+        private static readonly int MaxRoomSize = 25;
         private HexGrid stage;
 
 
