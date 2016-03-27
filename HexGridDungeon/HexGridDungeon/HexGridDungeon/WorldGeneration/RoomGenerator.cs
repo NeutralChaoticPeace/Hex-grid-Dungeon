@@ -23,43 +23,59 @@ namespace HexGridDungeon.WorldGeneration
 
 
             if (rand <= 50)
-                return BuildSimpleRoom(width, height);
-            //else if (50 < rand && rand <= 100)
-            //    return BuildWaterRoom(width, height);
-            else
+				return BuildSimpleRoom(width, height);
+			else if (50 < rand && rand <= 100)
+				return BuildWaterRoom(width, height);
+			else
                 return BuildSimpleRoom(width, height);
         } 
 
 
         public HexGrid BuildSimpleRoom(int width, int height)
         {
-			HexGrid room = new HexGrid(width, height);
-            //room.SetBorder(new Tiles.TileTypes.Wall());
-            //room.SetArea("floor", width - 2, height - 2, 1, 1);			
+			HexGrid room = new HexGrid(width, height);			
 
             BuildRoomBorder(room);
 			FillRoom(new Tiles.TileTypes.Floor(), room);
 
             return room;
         }
-
-
+		
         public HexGrid BuildWaterRoom(int width, int height)
         {
 			HexGrid room = new HexGrid(width, height);
-			room.SetBorder(new Tiles.TileTypes.Wall());
+			BuildRoomBorder(room);
+			FillRoom(new Tiles.TileTypes.Floor(), room);
 
-			int poolWidth = Rand.GetInstance().Next(1, width - 4);
-			int poolHeight = Rand.GetInstance().Next(1, height - 4);
+			List<Tuple<int, int>> liquidLocations = new List<Tuple<int, int>>();
 
-			room.SetArea("floor", width - 2, height - 2, 1, 1);
+			// start the pool in the middle of the room
+			int poolX = room.Width / 2;
+			int poolY = room.Height / 2;
+			int liquidCount = Rand.GetInstance().Next(Math.Min(room.Width, room.Height), Math.Max(room.Width, room.Height));
+			
+			room.SetTile(new Tuple<int, int>(poolX, poolY), new Tiles.TileTypes.Liquid());
+			liquidLocations.Add(new Tuple<int, int>(poolX, poolY));
 
-			int poolX = Rand.GetInstance().Next(2, width - poolWidth - 2);
-			int poolY = Rand.GetInstance().Next(2, height - poolHeight - 2);
+			for (int i = 1; i < liquidCount; i++)
+			{
+				Tuple<int, int> nextAdjLiquidLocation = liquidLocations[Rand.GetInstance().Next(0, liquidLocations.Count - 1)];
+				Tuple<int, int> nextLiquidLocation = null;
+				Tiles.Tile nextLocationTile = null;
 
-			room.SetArea("liquid", poolWidth, poolHeight, poolX, poolY);
+				while (nextLiquidLocation == null && (nextLocationTile == null || nextLocationTile is Tiles.TileTypes.Floor))
+				{
+					nextLiquidLocation = room.GetNextValidCoordinate(nextAdjLiquidLocation, (HexGrid.Direction)Rand.GetInstance().Next(0, 5));
+					nextLocationTile = room.GetTile(nextLiquidLocation);
+				}
 
-            return room;
+				room.SetTile(nextLiquidLocation, new Tiles.TileTypes.Liquid());
+				liquidLocations.Add(nextLiquidLocation);
+			}
+
+			BuildRoomBorder(room);
+
+			return room;
         }
 
 
