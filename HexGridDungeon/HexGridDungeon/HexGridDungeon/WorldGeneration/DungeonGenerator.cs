@@ -8,12 +8,15 @@ namespace HexGridDungeon.WorldGeneration
     public class DungeonGenerator
     {
         // Data
-        private static readonly int MinRoomSize = 5;
-        private static readonly int MaxRoomSize = 19;
+        private static readonly int MinRoomSize = 7;
+        private static readonly int MaxRoomSize = 15;
         private HexGrid stage;
 
 
         HashSet<HexGrid> DungeonRooms = new HashSet<HexGrid>();
+        HashSet<Tuple<int, int>> DungeonPaths = new HashSet<Tuple<int, int>>();
+        HashSet<Tuple<int, int>> DungeonEntries = new HashSet<Tuple<int, int>>();
+
 
         // Properties
         public int Width
@@ -57,6 +60,7 @@ namespace HexGridDungeon.WorldGeneration
                 width += 1;
             if (height % 2 == 0)
                 height += 1;
+
             stage = new HexGrid(width, height);
 
             GenerateBorderWalls();
@@ -66,6 +70,8 @@ namespace HexGridDungeon.WorldGeneration
             GeneratePaths();
 
 			ConvertNullToWall();
+
+            GenerateEntries();
         }
 
 
@@ -91,7 +97,7 @@ namespace HexGridDungeon.WorldGeneration
         // ROOMS
         private void GenerateRooms()
         {         
-            int RoomTries = Math.Max(stage.Width, stage.Height);
+            int RoomTries = stage.Width * Stage.Height;
 
             for (int i = 0; i < RoomTries; i++)
             {
@@ -104,17 +110,17 @@ namespace HexGridDungeon.WorldGeneration
             RoomGenerator roomGenerator = new RoomGenerator(MinRoomSize, MaxRoomSize);
 
             // Initial room square
-            int TrySize = Rand.GetInstance().Next(MinRoomSize, (int)Math.Floor(MaxRoomSize * 0.75));
+            int TrySize = Rand.GetInstance().Next(MinRoomSize, (int)Math.Floor(MaxRoomSize * 0.85));
             int TrySizeX = TrySize;
             int TrySizeY = TrySize;
 
             // rectangle modifier
-            if (Rand.GetInstance().Next(0, 100) <= 50)
+            if (Rand.GetInstance().Next(0, 100) <= 75)
             {
                 if (Rand.GetInstance().Next() % 2 == 0)
-                    TrySizeX += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeX));
+                    TrySizeX += Rand.GetInstance().Next(Math.Min((int)(TrySizeX * 0.10), MaxRoomSize), Math.Min((int)(TrySizeX*0.25), MaxRoomSize));
                 else
-                    TrySizeY += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeY));
+                    TrySizeY += Rand.GetInstance().Next(Math.Min((int)(TrySizeY * 0.10), MaxRoomSize), Math.Min((int)(TrySizeY * 0.25), MaxRoomSize));
             }
 
             // enforce odd room width / height
@@ -171,18 +177,6 @@ namespace HexGridDungeon.WorldGeneration
             return true;
         }
 
-		private void ConvertNullToWall()
-		{
-			for(int x = 0; x < stage.Width; x++)
-			{
-				for (int y = 0; y < stage.Height; y++)
-				{
-					if (stage.GetTile(new Tuple<int, int>(x, y)) == null)
-						stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
-				}
-			}
-		}
-
         private bool TryPlaceRoom(int _x, int _y, HexGrid _room)
         {
             for(int x = 0; x < _room.Width; x++)
@@ -196,6 +190,7 @@ namespace HexGridDungeon.WorldGeneration
             return true;
         }
 		
+
         // PATHS
         private void GeneratePaths()
         {
@@ -249,26 +244,6 @@ namespace HexGridDungeon.WorldGeneration
 			}
 		}
 
-		private List<Tuple<int, int>> CartesianPathableLocations(int x, int y)
-		{
-			List<Tuple<int, int>> pathableList = new List<Tuple<int, int>>();
-
-			if (stage.GetTile(new Tuple<int, int>(x + 2, y)) != null)
-				pathableList.Add(new Tuple<int, int>(x + 2, y));
-
-			if (stage.GetTile(new Tuple<int, int>(x - 2, y)) != null)
-				pathableList.Add(new Tuple<int, int>(x - 2, y));
-
-			if (stage.GetTile(new Tuple<int, int>(x, y + 2)) != null)
-				pathableList.Add(new Tuple<int, int>(x, y + 2));
-
-			if (stage.GetTile(new Tuple<int, int>(x, y - 2)) != null)
-				pathableList.Add(new Tuple<int, int>(x, y - 2));
-
-			return pathableList;
-
-		}
-
 		private List<Tuple<int, int>> HexPathableLocations(int x, int y)
 		{
 			List<Tuple<int, int>> pathableList = new List<Tuple<int, int>>();
@@ -283,6 +258,60 @@ namespace HexGridDungeon.WorldGeneration
 
             return pathableList;
 		}
+
+        private void ConvertNullToWall()
+        {
+            for (int x = 0; x < stage.Width; x++)
+            {
+                for (int y = 0; y < stage.Height; y++)
+                {
+                    if (stage.GetTile(new Tuple<int, int>(x, y)) == null)
+                        stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
+                }
+            }
+        }
+
+
+        // ENTRIES
+        private void GenerateEntries()
+        {
+            foreach(HexGrid room in DungeonRooms)
+            {
+                GenerateEntry(room);
+            }
+        }
+
+        private void GenerateEntry(HexGrid room)
+        {
+            // get list of possible doors
+            List<Tuple<int, int>> PossibleEntries = GetPossibleEntries(room);
+            Tuple<int, int> Entry = PossibleEntries[Rand.GetInstance().Next(0, PossibleEntries.Count)];
+
+            // place door
+            room.SetTile(Entry, new Tiles.TileTypes.Floor());
+            
+
+            // 50% chance for N+1 doors
+            if (Rand.GetInstance().Next(0, 100) <= 50)
+                GenerateEntry(room);
+        }
+
+        private List<Tuple<int, int>> GetPossibleEntries(HexGrid _room)
+        {
+            List<Tuple<int, int>> ReturnList = new List<Tuple<int, int>>();
+
+            for(int x = 0; x < _room.Width; x++)
+            {
+                for (int y = 0; y < _room.Height; y++)
+                {
+                    if (_room.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.Wall)
+                        ReturnList.Add(new Tuple<int, int>(x, y));
+                }
+            }
+
+            return ReturnList;
+        }
+
 
         // Tile Specific Operations
         private void CreateWall(Tuple<int, int> coordinate)
