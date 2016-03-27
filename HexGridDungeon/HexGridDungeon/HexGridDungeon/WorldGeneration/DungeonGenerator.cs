@@ -18,7 +18,6 @@ namespace HexGridDungeon.WorldGeneration
         HashSet<Tuple<int, int>> DungeonPaths = new HashSet<Tuple<int, int>>();
         HashSet<Tuple<int, int>> DungeonEntries = new HashSet<Tuple<int, int>>();
 
-
         // Properties
         public int Width
         {
@@ -75,6 +74,7 @@ namespace HexGridDungeon.WorldGeneration
             GenerateEntries();
 
 			while (FindDeadEnds());
+
         }
 
 
@@ -218,8 +218,11 @@ namespace HexGridDungeon.WorldGeneration
 			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Floor());
 			unfinishedNodes.Push(new Tuple<int, int>(x, y));
 
-			// while stack is not empty
-			while(unfinishedNodes.Count > 0)
+            // log location as path
+            DungeonPaths.Add(unfinishedNodes.Peek());
+
+            // while stack is not empty
+            while (unfinishedNodes.Count > 0)
 			{
                 // if possible, get every location pathable from the top of the stack
                 int currentX = unfinishedNodes.Peek().Item1;
@@ -233,9 +236,13 @@ namespace HexGridDungeon.WorldGeneration
 					nextLocation = pathableLocations[Rand.GetInstance().Next(0, pathableLocations.Count)];
 
 					// that location gets the above logic (turn it into a floor, turn in-between spot into a floor)
-					// push that location on stack
 					stage.SetStep(unfinishedNodes.Peek(), stage.GetStepDirection(unfinishedNodes.Peek(), nextLocation), new Tiles.TileTypes.Floor());
-                    //stage.SetTile(nextLocation, new Tiles.TileTypes.Floor());
+
+                    // log locations
+                    DungeonPaths.Add(nextLocation);
+                    DungeonPaths.Add(stage.GetNextValidCoordinate(unfinishedNodes.Peek(), stage.GetStepDirection(unfinishedNodes.Peek(), nextLocation)));
+
+                    // push that location on stack
                     unfinishedNodes.Push(nextLocation);
 				}
 				// else if its not possible to get every location (nowhere to path to)
@@ -353,9 +360,9 @@ namespace HexGridDungeon.WorldGeneration
             return false;
         }
 
-		// used to determine if a cell has 5 or more "wall" neighbors
-		// meaning it's a dead end
-		public bool HasSingleNeighbor(int x, int y)
+
+        // DEAD ENDS
+        public bool HasSingleNeighbor(int x, int y)
 		{
 			if (stage.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.Floor)
 			{
@@ -422,6 +429,6 @@ namespace HexGridDungeon.WorldGeneration
 			RemoveDeadEnds(nextX, nextY);
 		}
 
-        // DEAD ENDS ?
+
     }
 }
