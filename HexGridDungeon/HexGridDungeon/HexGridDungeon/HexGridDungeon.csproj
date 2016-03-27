@@ -69,6 +69,9 @@
     <Compile Include="Tiles\TileTypes\LiquidTypes\Blood.cs" />
     <Compile Include="Tiles\TileTypes\LiquidTypes\Lava.cs" />
     <Compile Include="Tiles\TileTypes\LiquidTypes\Water.cs" />
+    <Compile Include="Tiles\TileTypes\Portal.cs" />
+    <Compile Include="Tiles\TileTypes\PortalTypes\DownLadder.cs" />
+    <Compile Include="Tiles\TileTypes\PortalTypes\UpLadder.cs" />
     <Compile Include="Tiles\TileTypes\Wall.cs" />
     <Compile Include="Tiles\TileTypes\WallTypes\StoneWall.cs" />
     <Compile Include="Tiles\TileTypes\WallTypes\TrueWall.cs" />
