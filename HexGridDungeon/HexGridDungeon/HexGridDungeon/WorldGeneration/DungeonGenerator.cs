@@ -73,6 +73,8 @@ namespace HexGridDungeon.WorldGeneration
 			ConvertNullToWall();
 
             GenerateEntries();
+
+			while (FindDeadEnds());
         }
 
 
@@ -351,6 +353,74 @@ namespace HexGridDungeon.WorldGeneration
             return false;
         }
 
+		// used to determine if a cell has 5 or more "wall" neighbors
+		// meaning it's a dead end
+		public bool HasSingleNeighbor(int x, int y)
+		{
+			if (stage.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.Floor)
+			{
+
+				int count = 0;
+
+				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.Up)) is Tiles.TileTypes.Wall)
+					count++;
+				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.Down)) is Tiles.TileTypes.Wall)
+					count++;
+				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.LeftDown)) is Tiles.TileTypes.Wall)
+					count++;
+				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.RightUp)) is Tiles.TileTypes.Wall)
+					count++;
+				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.LeftUp)) is Tiles.TileTypes.Wall)
+					count++;
+				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.RightDown)) is Tiles.TileTypes.Wall)
+					count++;
+
+				if (count >= 5)
+					return true;
+				else
+					return false;
+			}
+
+			return false;
+		}
+
+		public bool FindDeadEnds()
+		{
+			bool flag = false;
+			for (int x = 0; x < stage.Width; x++)
+			{
+				for (int y = 0; y < stage.Height; y++)
+				{
+					if (HasSingleNeighbor(x, y))
+					{
+						// we've found a dead end
+						RemoveDeadEnds(x, y);
+						flag = true;
+					}
+				}
+			}
+			return flag;
+		}
+
+		public void RemoveDeadEnds(int x, int y)
+		{
+			if (!HasSingleNeighbor(x, y))
+				return;
+
+			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
+			int nextX = 0;
+			int nextY = 0;
+
+			if (stage.GetTile(new Tuple<int, int>(x + 1, y)) is Tiles.TileTypes.Floor) { nextX = x + 1; nextY = y; }
+			if (stage.GetTile(new Tuple<int, int>(x + 1, y + 1)) is Tiles.TileTypes.Floor) { nextX = x + 1; nextY = y + 1; }
+			if (stage.GetTile(new Tuple<int, int>(x, y + 1)) is Tiles.TileTypes.Floor) { nextX = x; nextY = y + 1; }
+			if (stage.GetTile(new Tuple<int, int>(x - 1, y)) is Tiles.TileTypes.Floor) { nextX = x - 1; nextY = y; }
+			if (stage.GetTile(new Tuple<int, int>(x - 1, y - 1)) is Tiles.TileTypes.Floor) { nextX = x - 1; nextY = y - 1; }
+			if (stage.GetTile(new Tuple<int, int>(x, y - 1)) is Tiles.TileTypes.Floor) { nextX = x; nextY = y - 1; }
+
+
+			RemoveDeadEnds(nextX, nextY);
+		}
 
         // DEAD ENDS ?
     }
