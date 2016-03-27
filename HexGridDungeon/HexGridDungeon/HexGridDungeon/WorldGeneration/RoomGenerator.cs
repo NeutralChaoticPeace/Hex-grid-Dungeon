@@ -32,7 +32,7 @@ namespace HexGridDungeon.WorldGeneration
 			HexGrid room = new HexGrid(width, height);			
 
             BuildRoomBorder(room);
-			FillRoom(new Tiles.TileTypes.Floor(), room);
+			FillRoom(new Tiles.TileTypes.FloorTypes.StoneFloor(), room);
 
             return room;
         }
@@ -41,7 +41,7 @@ namespace HexGridDungeon.WorldGeneration
         {
 			HexGrid room = new HexGrid(width, height);
 			BuildRoomBorder(room);
-			FillRoom(new Tiles.TileTypes.Floor(), room);
+			FillRoom(new Tiles.TileTypes.FloorTypes.StoneFloor(), room);
 
 			List<Tuple<int, int>> liquidLocations = new List<Tuple<int, int>>();
 
@@ -57,14 +57,14 @@ namespace HexGridDungeon.WorldGeneration
 			{
 				_tile = new Tiles.TileTypes.LiquidTypes.Water();
 			}
-			else if (tileRand > 75 && tileRand < 90)
+			else if (tileRand > 75 && tileRand <= 100)
 			{
 				_tile = new Tiles.TileTypes.LiquidTypes.Lava();
 			}
-			else if (tileRand >= 90)
-			{
-				_tile = new Tiles.TileTypes.LiquidTypes.Blood();
-			}
+			//else if (tileRand >= 90)
+			//{
+			//	_tile = new Tiles.TileTypes.LiquidTypes.Blood();
+			//}
 
 			room.SetTile(new Tuple<int, int>(poolX, poolY), _tile);
 			liquidLocations.Add(new Tuple<int, int>(poolX, poolY));
@@ -104,7 +104,7 @@ namespace HexGridDungeon.WorldGeneration
 
             SetPrioityUpClockwise(DirectionPriority);
 
-            _room.SetTile(StartLocation, new Tiles.TileTypes.Wall());
+            _room.SetTile(StartLocation, new Tiles.TileTypes.WallTypes.StoneWall());
             VisitedLocations.Add(StartLocation);
 
             while(true)
@@ -116,14 +116,14 @@ namespace HexGridDungeon.WorldGeneration
                     // base case:
                     if(NextLocation != null && NextLocation.Item1 == StartLocation.Item1 && NextLocation.Item2 == StartLocation.Item2)
                     {
-                        _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
+                        _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.WallTypes.StoneWall());
                         return;
                     }
                     if (NextLocation != null && !VisitedLocations.Contains(NextLocation))
                     {
 
                         // otherwise:
-                        _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
+                        _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.WallTypes.StoneWall());
                         VisitedLocations.Add(CurrentLocation);
                         CurrentLocation = NextLocation;
                         

@@ -5,11 +5,7 @@ using System.Text;
 
 namespace HexGridDungeon.Tiles.TileTypes
 {
-    public class Wall : Tile
+    public abstract class Wall : Tile
     {
-        public Wall()
-        {
-            spriteID = "WallHexSprite";
-        }
     }
 }

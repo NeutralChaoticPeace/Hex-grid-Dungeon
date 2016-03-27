@@ -81,19 +81,7 @@ namespace HexGridDungeon.WorldGeneration
         // BORDERS
         private void GenerateBorderWalls()
         {
-            //for(int x = 0; x < stage.Width; x++)
-            //{
-            //    CreateWall(new Tuple<int, int>(x, 0));
-            //    CreateWall(new Tuple<int, int>(x, stage.Height - 1));
-            //}
-
-            //for (int y = 0; y < stage.Height; y++)
-            //{
-            //    CreateWall(new Tuple<int, int>(0, y));
-            //    CreateWall(new Tuple<int, int>(stage.Width - 1, y));
-            //}
-
-            stage.SetBorder(new Tiles.TileTypes.Wall());
+            stage.SetBorder(new Tiles.TileTypes.WallTypes.TrueWall());
         }
 
 
@@ -215,7 +203,7 @@ namespace HexGridDungeon.WorldGeneration
 			Stack<Tuple<int, int>> unfinishedNodes = new Stack<Tuple<int, int>>();
 
 			// location x,y is a floor and start location
-			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Floor());
+			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.FloorTypes.StoneFloor());
 			unfinishedNodes.Push(new Tuple<int, int>(x, y));
 
             // log location as path
@@ -236,7 +224,7 @@ namespace HexGridDungeon.WorldGeneration
 					nextLocation = pathableLocations[Rand.GetInstance().Next(0, pathableLocations.Count)];
 
 					// that location gets the above logic (turn it into a floor, turn in-between spot into a floor)
-					stage.SetStep(unfinishedNodes.Peek(), stage.GetStepDirection(unfinishedNodes.Peek(), nextLocation), new Tiles.TileTypes.Floor());
+					stage.SetStep(unfinishedNodes.Peek(), stage.GetStepDirection(unfinishedNodes.Peek(), nextLocation), new Tiles.TileTypes.FloorTypes.StoneFloor());
 
                     // log locations
                     DungeonPaths.Add(nextLocation);
@@ -276,7 +264,7 @@ namespace HexGridDungeon.WorldGeneration
                 for (int y = 0; y < stage.Height; y++)
                 {
                     if (stage.GetTile(new Tuple<int, int>(x, y)) == null)
-                        stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
+                        stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.WallTypes.StoneWall());
                 }
             }
         }
@@ -303,7 +291,7 @@ namespace HexGridDungeon.WorldGeneration
                 Entry = new Tuple<int, int>(Entry.Item1 + _roomData.Item1, Entry.Item2);
                 Entry = new Tuple<int, int>(Entry.Item1, Entry.Item2 + _roomData.Item2);
                 // place door
-                if (stage.SetTile(Entry, new Tiles.TileTypes.Floor()))
+                if (stage.SetTile(Entry, new Tiles.TileTypes.FloorTypes.StoneFloor()))
                     // 50% chance for N+1 doors
                     if (Rand.GetInstance().Next(0, 100) <= 50)
                         GenerateEntry(_roomData);
@@ -414,7 +402,7 @@ namespace HexGridDungeon.WorldGeneration
 			if (!HasSingleNeighbor(x, y))
 				return;
 
-			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
+			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.WallTypes.StoneWall());
 			int nextX = 0;
 			int nextY = 0;
 
