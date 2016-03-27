@@ -182,16 +182,113 @@ namespace HexGridDungeon.WorldGeneration
             
             return true;
         }
-
-
+		
         // PATHS
         private void GeneratePaths()
         {
-
+			for(int x = 0; x < stage.Width; x++)
+			{
+				for (int y = 0; y < stage.Height; y++)
+				{
+					if (stage.GetTile(new Tuple<int, int>(x, y)) == null)
+					{
+						GenerateMaze(x, y);
+						return;
+					}
+				}
+			}
         }
 
+		private void GenerateMaze(int x, int y)
+		{
+			Stack<Tuple<int, int>> unfinishedNodes = new Stack<Tuple<int, int>>();
+			// location x,y is a floor
+			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Floor());
+			// push x,y onto the stack
+			unfinishedNodes.Push(new Tuple<int, int>(x, y));
 
 
+			// while stack is not empty
+			while(unfinishedNodes.Count > 0)
+			{
+				// if possible, get every location pathable from the top of the stack
+				List<Tuple<int, int>> pathableLocations = CartesianPathableLocations(x, y);
+				Tuple<int, int> nextLocation;
+				// pick a random one and go 
+				if (pathableLocations.Count > 0)
+				{
+					nextLocation = pathableLocations[Rand.GetInstance().Next(0, pathableLocations.Count)];
+
+					// that location gets the above logic (turn it into a floor, turn in-between spot into a floor)
+					// push that location on stack
+					stage.SetTile(nextLocation, new Tiles.TileTypes.Floor());
+					unfinishedNodes.Push(nextLocation);
+				}
+				// else if its not possible to get every location (nowhere to path to)
+				else
+				{
+					// remove element from stack and continue
+					unfinishedNodes.Pop();
+				}
+			}
+		}
+
+		private List<Tuple<int, int>> CartesianPathableLocations(int x, int y)
+		{
+			List<Tuple<int, int>> pathableList = new List<Tuple<int, int>>();
+
+			if (stage.GetTile(new Tuple<int, int>(x + 2, y)) != null)
+				pathableList.Add(new Tuple<int, int>(x + 2, y));
+
+			if (stage.GetTile(new Tuple<int, int>(x - 2, y)) != null)
+				pathableList.Add(new Tuple<int, int>(x - 2, y));
+
+			if (stage.GetTile(new Tuple<int, int>(x, y + 2)) != null)
+				pathableList.Add(new Tuple<int, int>(x, y + 2));
+
+			if (stage.GetTile(new Tuple<int, int>(x, y - 2)) != null)
+				pathableList.Add(new Tuple<int, int>(x, y - 2));
+
+			return pathableList;
+
+		}
+
+		private List<Tuple<int, int>> HexPathableLocations(int x, int y)
+		{
+			List<Tuple<int, int>> pathableList = new List<Tuple<int, int>>();
+
+			// check straight down
+			Tuple<int, int> temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.Down);
+			if (temp != null)
+				pathableList.Add(temp);
+
+			// check straight up
+			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.Up);
+			if (temp != null)
+				pathableList.Add(temp);
+
+			// check straight left down
+			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.LeftDown);
+			if (temp != null)
+				pathableList.Add(temp);
+
+			// check straight left up
+			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.LeftUp);
+			if (temp != null)
+				pathableList.Add(temp);
+
+			// check straight right down
+			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.RightDown);
+			if (temp != null)
+				pathableList.Add(temp);
+
+			// check straight right up
+			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.RightUp);
+			if (temp != null)
+				pathableList.Add(temp);
+
+			return pathableList;
+		}
 
         // Tile Specific Operations
         private void CreateWall(Tuple<int, int> coordinate)

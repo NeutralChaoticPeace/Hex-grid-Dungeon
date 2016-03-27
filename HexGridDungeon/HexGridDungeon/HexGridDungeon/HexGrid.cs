@@ -43,8 +43,16 @@ namespace HexGridDungeon
 
 
         // Traversal Logic
+		public Tuple<int, int> GetNextValidStep(Tuple<int, int> currentCoordinate, Direction dir)
+		{
+			return GetNextValidCoordinate(GetNextValidCoordinate(currentCoordinate, dir), dir);
+		}
+
         public Tuple<int, int> GetNextValidCoordinate(Tuple<int, int> currentCoordinate, Direction dir)
         {
+			if (currentCoordinate == null)
+				return null;
+
             if (!IsValidCoordinate(currentCoordinate))
                 return null;
 
