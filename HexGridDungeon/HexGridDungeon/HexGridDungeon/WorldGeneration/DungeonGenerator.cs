@@ -107,7 +107,7 @@ namespace HexGridDungeon.WorldGeneration
 
         private void GenerateRoom()
         {
-            RoomGenerator roomGenerator = new RoomGenerator(MinRoomSize, MaxRoomSize);
+            RoomGenerator roomGenerator = new RoomGenerator();
 
             // Initial room square
             int TrySize = Rand.GetInstance().Next(MinRoomSize, (int)Math.Floor(MaxRoomSize * 0.85));

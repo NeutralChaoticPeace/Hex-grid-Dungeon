@@ -7,13 +7,9 @@ namespace HexGridDungeon.WorldGeneration
 {
     public class RoomGenerator
     {
-        private int MinRoomSize;
-        private int MaxroomSize;
-
-        public RoomGenerator(int _MinRoomSize, int _MaxRoomSize)
+        public RoomGenerator()
         {
-            MinRoomSize = _MinRoomSize;
-            MaxroomSize = _MaxRoomSize;
+
         }
 
 
@@ -22,9 +18,9 @@ namespace HexGridDungeon.WorldGeneration
             int rand = Rand.GetInstance().Next(0, 100);
 
 
-            if (rand <= 50)
+            if (rand <= 80)
 				return BuildSimpleRoom(width, height);
-			else if (50 < rand && rand <= 100)
+			else if (80 < rand && rand <= 100)
 				return BuildWaterRoom(width, height);
 			else
                 return BuildSimpleRoom(width, height);
