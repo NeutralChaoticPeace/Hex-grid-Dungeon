@@ -65,6 +65,9 @@
     <Compile Include="Tiles\Tile.cs" />
     <Compile Include="Tiles\TileTypes\Floor.cs" />
     <Compile Include="Tiles\TileTypes\Liquid.cs" />
+    <Compile Include="Tiles\TileTypes\LiquidTypes\Blood.cs" />
+    <Compile Include="Tiles\TileTypes\LiquidTypes\Lava.cs" />
+    <Compile Include="Tiles\TileTypes\LiquidTypes\Water.cs" />
     <Compile Include="Tiles\TileTypes\Wall.cs" />
     <Compile Include="WorldGeneration\DungeonGenerator.cs" />
     <Compile Include="WorldGeneration\RoomGenerator.cs" />

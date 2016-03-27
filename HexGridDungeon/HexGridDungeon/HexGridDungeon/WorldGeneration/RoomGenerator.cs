@@ -21,7 +21,7 @@ namespace HexGridDungeon.WorldGeneration
             if (rand <= 80)
 				return BuildSimpleRoom(width, height);
 			else if (80 < rand && rand <= 100)
-				return BuildWaterRoom(width, height);
+				return BuildLiquidRoom(width, height);
 			else
                 return BuildSimpleRoom(width, height);
         } 
@@ -37,7 +37,7 @@ namespace HexGridDungeon.WorldGeneration
             return room;
         }
 		
-        public HexGrid BuildWaterRoom(int width, int height)
+        public HexGrid BuildLiquidRoom(int width, int height)
         {
 			HexGrid room = new HexGrid(width, height);
 			BuildRoomBorder(room);
@@ -49,8 +49,24 @@ namespace HexGridDungeon.WorldGeneration
 			int poolX = room.Width / 2;
 			int poolY = room.Height / 2;
 			int liquidCount = Rand.GetInstance().Next(Math.Min(room.Width, room.Height), Math.Max(room.Width, room.Height));
-			
-			room.SetTile(new Tuple<int, int>(poolX, poolY), new Tiles.TileTypes.Liquid());
+
+			int tileRand = Rand.GetInstance().Next(0, 100);
+			Tiles.Tile _tile = null;
+
+			if (tileRand <= 75)
+			{
+				_tile = new Tiles.TileTypes.LiquidTypes.Water();
+			}
+			else if (tileRand > 75 && tileRand < 90)
+			{
+				_tile = new Tiles.TileTypes.LiquidTypes.Lava();
+			}
+			else if (tileRand >= 90)
+			{
+				_tile = new Tiles.TileTypes.LiquidTypes.Blood();
+			}
+
+			room.SetTile(new Tuple<int, int>(poolX, poolY), _tile);
 			liquidLocations.Add(new Tuple<int, int>(poolX, poolY));
 
 			for (int i = 1; i < liquidCount; i++)
@@ -65,7 +81,7 @@ namespace HexGridDungeon.WorldGeneration
 					nextLocationTile = room.GetTile(nextLiquidLocation);
 				}
 
-				room.SetTile(nextLiquidLocation, new Tiles.TileTypes.Liquid());
+				room.SetTile(nextLiquidLocation, _tile);
 				liquidLocations.Add(nextLiquidLocation);
 			}
 

@@ -196,27 +196,6 @@ namespace HexGridDungeon
 			}
 		}
 
-		public void SetArea(string _tile, int _width, int _height, int _x, int _y)
-		{
-			for (int x = _x; x < _width + _x; x++)
-			{
-				for (int y = _y; y < _height + _y; y++)
-				{
-					switch (_tile.ToLower())
-					{
-						case "floor": SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Floor());
-							break;
-						case "wall": SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
-							break;
-						case "liquid": SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Liquid());
-							break;
-						default: break;
-
-					}
-				}
-			}
-		}
-
         public void SetStep(Tuple<int, int> Location, Direction _dir, Tile _tile)
         {
             // set first and second tiles in step to input tile
@@ -230,31 +209,6 @@ namespace HexGridDungeon
                 return Grid[coordinate.Item1, coordinate.Item2];
             else
                 return null;
-		}
-
-		private void CreateLiquid(string type, Tuple<int, int> coordinate)
-		{
-			if (IsValidCoordinate(coordinate))
-			{
-				switch (type.ToLower())
-				{
-					case "water": SetTile(coordinate, new Tiles.TileTypes.Liquid());
-						break;
-					default: break;
-				}
-			}
-		}
-
-		private void CreateFloor(Tuple<int, int> coordinate)
-		{
-			if (IsValidCoordinate(coordinate))
-				SetTile(coordinate, new Tiles.TileTypes.Liquid());
-		}
-
-		private void CreateWall(Tuple<int, int> coordinate)
-		{
-			if (IsValidCoordinate(coordinate))
-				SetTile(coordinate, new Tiles.TileTypes.Wall());
 		}
 	}
 }
