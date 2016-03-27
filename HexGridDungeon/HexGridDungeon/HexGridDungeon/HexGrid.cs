@@ -141,8 +141,9 @@ namespace HexGridDungeon
 
         public bool IsValidCoordinate(Tuple<int, int> coordinate)
         {
-			int x = Grid.GetLength(0);
-			int y = Grid.GetLength(1);
+            if (coordinate == null)
+                return false;
+
             // out of lower bound
             if (coordinate.Item1 < 0 || coordinate.Item2 < 0)
                 return false;
@@ -153,8 +154,22 @@ namespace HexGridDungeon
                 return true;
         }
 
+        public Direction GetStepDirection(Tuple<int, int> current, Tuple<int, int> next)
+        {
+            foreach (HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
+            {
+                Tuple<int, int> temp = this.GetNextValidStep(current, value);
 
-        // Tile Get/Set
+                if(temp != null)
+                    if (temp.Item1 == next.Item1 && temp.Item2 == next.Item2)
+                        return value;
+            }
+
+            // this is an ERROR
+            return Direction.Down;
+        }
+
+        // Tile Get/Set Logic
         public bool SetTile(Tuple<int, int> coordinate, Tile NewTile)
         {
             if(IsValidCoordinate(coordinate))
@@ -166,8 +181,6 @@ namespace HexGridDungeon
                 return false;
         }
 
-
-		// Procedural Generation
 		public void SetBorder(Tile _tile)
 		{
 			for (int x = 0; x < Width; x++)
@@ -238,7 +251,6 @@ namespace HexGridDungeon
 				SetTile(coordinate, new Tiles.TileTypes.Liquid());
 		}
 
-		// Tile Specific Operations
 		private void CreateWall(Tuple<int, int> coordinate)
 		{
 			if (IsValidCoordinate(coordinate))

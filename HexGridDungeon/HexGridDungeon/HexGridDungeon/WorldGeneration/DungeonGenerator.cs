@@ -202,27 +202,30 @@ namespace HexGridDungeon.WorldGeneration
 		private void GenerateMaze(int x, int y)
 		{
 			Stack<Tuple<int, int>> unfinishedNodes = new Stack<Tuple<int, int>>();
-			// location x,y is a floor
-			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Floor());
-			// push x,y onto the stack
-			unfinishedNodes.Push(new Tuple<int, int>(x, y));
 
+			// location x,y is a floor and start location
+			stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Floor());
+			unfinishedNodes.Push(new Tuple<int, int>(x, y));
 
 			// while stack is not empty
 			while(unfinishedNodes.Count > 0)
 			{
-				// if possible, get every location pathable from the top of the stack
-				List<Tuple<int, int>> pathableLocations = CartesianPathableLocations(x, y);
+                // if possible, get every location pathable from the top of the stack
+                int currentX = unfinishedNodes.Peek().Item1;
+                int currentY = unfinishedNodes.Peek().Item2;
+                List<Tuple<int, int>> pathableLocations = HexPathableLocations(currentX, currentY);
 				Tuple<int, int> nextLocation;
-				// pick a random one and go 
+
+				// if possible, pick a random one and go 
 				if (pathableLocations.Count > 0)
 				{
 					nextLocation = pathableLocations[Rand.GetInstance().Next(0, pathableLocations.Count)];
 
 					// that location gets the above logic (turn it into a floor, turn in-between spot into a floor)
 					// push that location on stack
-					stage.SetTile(nextLocation, new Tiles.TileTypes.Floor());
-					unfinishedNodes.Push(nextLocation);
+					stage.SetStep(unfinishedNodes.Peek(), stage.GetStepDirection(unfinishedNodes.Peek(), nextLocation), new Tiles.TileTypes.Floor());
+                    //stage.SetTile(nextLocation, new Tiles.TileTypes.Floor());
+                    unfinishedNodes.Push(nextLocation);
 				}
 				// else if its not possible to get every location (nowhere to path to)
 				else
@@ -257,37 +260,15 @@ namespace HexGridDungeon.WorldGeneration
 		{
 			List<Tuple<int, int>> pathableList = new List<Tuple<int, int>>();
 
-			// check straight down
-			Tuple<int, int> temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.Down);
-			if (temp != null)
-				pathableList.Add(temp);
+            foreach (HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
+            {
+                Tuple<int, int> temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), value);
 
-			// check straight up
-			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.Up);
-			if (temp != null)
-				pathableList.Add(temp);
+                if (stage.GetTile(temp) == null && stage.IsValidCoordinate(temp))
+                    pathableList.Add(temp);
+            }
 
-			// check straight left down
-			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.LeftDown);
-			if (temp != null)
-				pathableList.Add(temp);
-
-			// check straight left up
-			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.LeftUp);
-			if (temp != null)
-				pathableList.Add(temp);
-
-			// check straight right down
-			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.RightDown);
-			if (temp != null)
-				pathableList.Add(temp);
-
-			// check straight right up
-			temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), HexGrid.Direction.RightUp);
-			if (temp != null)
-				pathableList.Add(temp);
-
-			return pathableList;
+            return pathableList;
 		}
 
         // Tile Specific Operations
