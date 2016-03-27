@@ -11,14 +11,15 @@ namespace HexGridDungeon.WorldGeneration
         private static readonly int MinRoomSize = 7;
         private static readonly int MaxRoomSize = 15;
         private HexGrid stage;
+		private int RoomPlaceTries;
 
-
-        // DungeonRooms<x, y, room>
-        HashSet<Tuple<int, int, HexGrid>> DungeonRooms = new HashSet<Tuple<int, int, HexGrid>>();
+		// Dungeon Objects - DungeonRooms<x, y, room>
+		HashSet<Tuple<int, int, HexGrid>> DungeonRooms = new HashSet<Tuple<int, int, HexGrid>>();
         HashSet<Tuple<int, int>> DungeonPaths = new HashSet<Tuple<int, int>>();
         HashSet<Tuple<int, int>> DungeonEntries = new HashSet<Tuple<int, int>>();
-
+		// Dead ends with 3 locations (not caught by dead end backfill code)
         HashSet<HashSet<Tuple<int, int>>> TriDeadends = new HashSet<HashSet<Tuple<int, int>>>();
+
 
         // Properties
         public int Width
@@ -64,8 +65,9 @@ namespace HexGridDungeon.WorldGeneration
                 height += 1;
 
             stage = new HexGrid(width, height);
+			RoomPlaceTries = stage.Width * Stage.Height;
 
-            GenerateBorderWalls();
+			GenerateBorderWalls();
 
             GenerateRooms();
 
@@ -77,11 +79,11 @@ namespace HexGridDungeon.WorldGeneration
 
 			GenerateLadders();
 
-			while (FindDeadEnds());
+			while (FillAllDeadEnds());
 
             //GenerateDFSTokens();
 
-            DetectTriSets();
+         //   DetectTriSets();
 
 		}
 
@@ -93,12 +95,11 @@ namespace HexGridDungeon.WorldGeneration
         }
 
 
-        // ROOMS
-        private void GenerateRooms()
-        {         
-            int RoomTries = stage.Width * Stage.Height;
+		#region Rooms
 
-            for (int i = 0; i < RoomTries; i++)
+		private void GenerateRooms()
+        {         
+            for (int i = 0; i < RoomPlaceTries; i++)
             {
                 GenerateRoom();
             }
@@ -155,17 +156,19 @@ namespace HexGridDungeon.WorldGeneration
             if (IsValidRoomPlacement(TryPlaceX, TryPlaceY, TrySizeX, TrySizeY))
             {
                 HexGrid room = roomGenerator.GenerateNewRoom(TrySizeX, TrySizeY);
-                if (TryPlaceRoom(TryPlaceX, TryPlaceY, room))
+                if (PlaceRoom(TryPlaceX, TryPlaceY, room))
                     DungeonRooms.Add(new Tuple<int, int, HexGrid>(TryPlaceX, TryPlaceY, room));
             }
         }
 
         private bool IsValidRoomPlacement(int _x, int _y, int _width, int _height)
         {
+			// for every cell in room
             for(int x = _x; x < _width + _x; x ++)
             {
                 for(int y = _y; y < _height + _y; y++)
                 {
+					// if that cell would only overwrite a null location, and that location is in the grid
                     if (!stage.IsValidCoordinate(new Tuple<int, int>(x, y)))
                         return false;
                     if (stage.GetTile(new Tuple<int, int>(x, y)) != null)
@@ -176,8 +179,9 @@ namespace HexGridDungeon.WorldGeneration
             return true;
         }
 
-        private bool TryPlaceRoom(int _x, int _y, HexGrid _room)
+        private bool PlaceRoom(int _x, int _y, HexGrid _room)
         {
+			// copy each cell of the room into the stage
             for(int x = 0; x < _room.Width; x++)
             {
                 for (int y = 0; y < _room.Height; y++)
@@ -188,17 +192,21 @@ namespace HexGridDungeon.WorldGeneration
             
             return true;
         }
-		
 
-        // PATHS
-        private void GeneratePaths()
+		#endregion
+
+		#region Maze Paths
+
+		private void GeneratePaths()
         {
+			// find the first null cell in the stage,
 			for(int x = 0; x < stage.Width; x++)
 			{
 				for (int y = 0; y < stage.Height; y++)
 				{
 					if (stage.GetTile(new Tuple<int, int>(x, y)) == null)
 					{
+						// start generating the maze here
 						GenerateMaze(x, y);
 						return;
 					}
@@ -208,6 +216,7 @@ namespace HexGridDungeon.WorldGeneration
 
 		private void GenerateMaze(int x, int y)
 		{
+			// These are cells that the maze can still branch off of
 			Stack<Tuple<int, int>> unfinishedNodes = new Stack<Tuple<int, int>>();
 
 			// location x,y is a floor and start location
@@ -254,10 +263,12 @@ namespace HexGridDungeon.WorldGeneration
 		{
 			List<Tuple<int, int>> pathableList = new List<Tuple<int, int>>();
 
+			// for each cell around the input cell
             foreach (HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
             {
                 Tuple<int, int> temp = stage.GetNextValidStep(new Tuple<int, int>(x, y), value);
 
+				// if that cell is null and valid, we can path here
                 if (stage.GetTile(temp) == null && stage.IsValidCoordinate(temp))
                     pathableList.Add(temp);
             }
@@ -267,6 +278,7 @@ namespace HexGridDungeon.WorldGeneration
 
         private void ConvertNullToWall()
         {
+			// for every null cell remaining in stage, convert to wall
             for (int x = 0; x < stage.Width; x++)
             {
                 for (int y = 0; y < stage.Height; y++)
@@ -277,9 +289,11 @@ namespace HexGridDungeon.WorldGeneration
             }
         }
 
+		#endregion
 
-        // ENTRIES
-        private void GenerateEntries()
+		#region Entries
+
+		private void GenerateEntries()
         {
             foreach(Tuple<int, int, HexGrid> roomData in DungeonRooms)
             {
@@ -294,11 +308,14 @@ namespace HexGridDungeon.WorldGeneration
 
             if(PossibleEntries.Count > 0)
             {
+				// get a random entry
                 Tuple<int, int> Entry = PossibleEntries[Rand.GetInstance().Next(0, PossibleEntries.Count)];
 
+				// adjuct from room to stage coordinate
                 Entry = new Tuple<int, int>(Entry.Item1 + _roomData.Item1, Entry.Item2);
                 Entry = new Tuple<int, int>(Entry.Item1, Entry.Item2 + _roomData.Item2);
-				// place door
+				
+				// place entry
 				if (stage.SetTile(Entry, new Tiles.TileTypes.FloorTypes.StoneFloor()))
 				{
 					DungeonEntries.Add(Entry);
@@ -314,13 +331,16 @@ namespace HexGridDungeon.WorldGeneration
         private List<Tuple<int, int>> GetPossibleEntries(Tuple<int, int, HexGrid> _roomData)
         {
             List<Tuple<int, int>> ReturnList = new List<Tuple<int, int>>();
-
+			
+			// for every cell in the room
             for(int x = 0; x < _roomData.Item3.Width; x++)
             {
                 for (int y = 0; y < _roomData.Item3.Height; y++)
                 {
+					// if that cell is a wall
                     if (_roomData.Item3.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.Wall)
-                        if(IsPossibleEntry(new Tuple<int, int>(x, y), _roomData))
+						// and if that cell is a possible entry
+						if (IsPossibleEntry(new Tuple<int, int>(x, y), _roomData))
                             ReturnList.Add(new Tuple<int, int>(x, y));
                 }
             }
@@ -330,10 +350,11 @@ namespace HexGridDungeon.WorldGeneration
 
         private bool IsPossibleEntry(Tuple<int, int> _Location, Tuple<int, int, HexGrid> _roomData)
         {
+			// given location, identify 3 walls with 2 floors on either side
             _Location = new Tuple<int, int>(_Location.Item1 + _roomData.Item1, _Location.Item2);
             _Location = new Tuple<int, int>(_Location.Item1, _Location.Item2 + _roomData.Item2);
 
-            // UP && DOWN
+            // UP && DOWN are walls, all else are floor
             if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Up)) is Tiles.TileTypes.Wall)
                 if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Down)) is Tiles.TileTypes.Wall)
                     if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftDown)) is Tiles.TileTypes.Floor)
@@ -341,7 +362,7 @@ namespace HexGridDungeon.WorldGeneration
                             if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightDown)) is Tiles.TileTypes.Floor)
                                 if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightUp)) is Tiles.TileTypes.Floor)
                                     return true;
-            // LEFT UP && RIGHT DOWN
+            // LEFT UP && RIGHT DOWN are walls, all else are floor
             if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Up)) is Tiles.TileTypes.Floor)
                 if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Down)) is Tiles.TileTypes.Floor)
                     if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftDown)) is Tiles.TileTypes.Floor)
@@ -349,7 +370,7 @@ namespace HexGridDungeon.WorldGeneration
                             if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightDown)) is Tiles.TileTypes.Wall)
                                 if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightUp)) is Tiles.TileTypes.Floor)
                                     return true;
-            // LEFT DOWN && RIGHT UP
+            // LEFT DOWN && RIGHT UP are walls, all else are floor
             if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Up)) is Tiles.TileTypes.Floor)
                 if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Down)) is Tiles.TileTypes.Floor)
                     if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftDown)) is Tiles.TileTypes.Wall)
@@ -361,15 +382,17 @@ namespace HexGridDungeon.WorldGeneration
             return false;
         }
 
+		#endregion
 
-        // DEAD ENDS
-        public bool HasSingleNeighbor(int x, int y)
+		#region Dead Ends
+
+		public bool HasSingleNeighbor(int x, int y)
 		{
 			if (stage.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.Floor)
 			{
-
 				int count = 0;
 
+				// optimize this with foreach on direction. check each direction, count neighbors
 				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.Up)) is Tiles.TileTypes.Wall)
 					count++;
 				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.Down)) is Tiles.TileTypes.Wall)
@@ -383,6 +406,7 @@ namespace HexGridDungeon.WorldGeneration
 				if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), HexGrid.Direction.RightDown)) is Tiles.TileTypes.Wall)
 					count++;
 
+				// == 5 is a single neighbor
 				if (count >= 5)
 					return true;
 				else
@@ -392,9 +416,12 @@ namespace HexGridDungeon.WorldGeneration
 			return false;
 		}
 
-		public bool FindDeadEnds()
+		public bool FillAllDeadEnds()
 		{
+			// return if any changes are made
 			bool flag = false;
+
+			// for every cell in stage
 			for (int x = 0; x < stage.Width; x++)
 			{
 				for (int y = 0; y < stage.Height; y++)
@@ -402,16 +429,18 @@ namespace HexGridDungeon.WorldGeneration
 					if (HasSingleNeighbor(x, y))
 					{
 						// we've found a dead end
-						RemoveDeadEnds(x, y);
+						RemoveDeadEnd(x, y);
 						flag = true;
 					}
 				}
 			}
+
 			return flag;
 		}
 
-		private void RemoveDeadEnds(int x, int y)
+		private void RemoveDeadEnd(int x, int y)
 		{
+			// if this cell is a dead end
 			if (!HasSingleNeighbor(x, y))
 				return;
 
@@ -419,6 +448,7 @@ namespace HexGridDungeon.WorldGeneration
 			int nextX = 0;
 			int nextY = 0;
 
+			// foreach on direction?
 			if (stage.GetTile(new Tuple<int, int>(x + 1, y)) is Tiles.TileTypes.Floor) { nextX = x + 1; nextY = y; }
 			if (stage.GetTile(new Tuple<int, int>(x + 1, y + 1)) is Tiles.TileTypes.Floor) { nextX = x + 1; nextY = y + 1; }
 			if (stage.GetTile(new Tuple<int, int>(x, y + 1)) is Tiles.TileTypes.Floor) { nextX = x; nextY = y + 1; }
@@ -426,16 +456,21 @@ namespace HexGridDungeon.WorldGeneration
 			if (stage.GetTile(new Tuple<int, int>(x - 1, y - 1)) is Tiles.TileTypes.Floor) { nextX = x - 1; nextY = y - 1; }
 			if (stage.GetTile(new Tuple<int, int>(x, y - 1)) is Tiles.TileTypes.Floor) { nextX = x; nextY = y - 1; }
 
-
-			RemoveDeadEnds(nextX, nextY);
+			// recursively keep filling the dead end
+			RemoveDeadEnd(nextX, nextY);
 		}
 
+		#endregion
 
-        // LADDERS
+
+		// LADDERS
 		private void GenerateLadders()
 		{
+			// get list of possible ladders
 			List<Tuple<int, int>> possibleLadders = new List<Tuple<int, int>>();
-			for(int x = 0; x < stage.Width; x++)
+
+			// Change this later, for now just detect dead ends as possible locations
+			for (int x = 0; x < stage.Width; x++)
 			{
 				for(int y = 0; y < stage.Height; y++)
 				{
@@ -446,6 +481,7 @@ namespace HexGridDungeon.WorldGeneration
 				}
 			}
 
+			// minimum 2 ladder positions, 1 up and 1 down. About an even number of each
 			for (int i = 0; i < Math.Max(2, 0.2 * possibleLadders.Count); i++)
 			{
 				if(i % 2 == 0)
@@ -456,8 +492,7 @@ namespace HexGridDungeon.WorldGeneration
 		}
 
 
-        // TRI DEAD ENDS
-
+        // TODO:	TRI DEAD ENDS - dead ends with 3 tiles adjacent, not just 1.
         private void DetectTriSets()
         {
             for(int x = 0; x < stage.Width; x++)
@@ -482,7 +517,9 @@ namespace HexGridDungeon.WorldGeneration
                     stage.SetTile(cell, new Tiles.TileTypes.LiquidTypes.Blood());
                 }
             }
- 
+
+//            MarkPathSideSteps();
+
         }
 
         private HashSet<Tuple<int, int>> IsTriSet(Tuple<int,int> _Location)
@@ -533,10 +570,31 @@ namespace HexGridDungeon.WorldGeneration
             return null;
         }
 
-        private void TryPopulateTriSetDeadEnd(Tuple<int, int> _Location)
-        {
-            
-            
-        }
+        // mark locations from triset that are a sidestep from a path
+        //private void MarkPathSideSteps()
+        //{
+        //    // for each of 3 locations, find the one that does not touch a floor
+        //    // mark that location
+
+        //    foreach (var set in TriDeadends)
+        //    {
+        //        foreach (Tuple<int, int> location in set)
+        //        {
+        //            if(stage.GetTile(location) is Tiles.TileTypes.LiquidTypes.Blood)
+        //                if()
+        //                foreach (HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
+        //                {
+        //                    Tuple<int, int> temp = stage.GetNextValidCoordinate(new Tuple<int, int>(location.Item1, location.Item2), value);
+
+                        
+        //                    if (stage.GetTile(temp) is Tiles.TileTypes.Floor)
+        //                        continue;
+        //                    else
+        //                        stage.SetTile(temp, new Tiles.TileTypes.FloorTypes.StoneFloor());
+        //                }
+        //        }
+        //    }
+
+        //}
     }
 }

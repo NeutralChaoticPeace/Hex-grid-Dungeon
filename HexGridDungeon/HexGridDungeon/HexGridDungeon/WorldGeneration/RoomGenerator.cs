@@ -7,12 +7,7 @@ namespace HexGridDungeon.WorldGeneration
 {
     public class RoomGenerator
     {
-        public RoomGenerator()
-        {
-
-        }
-
-
+		// Generates a random room with weighted probabilitiesS
         public HexGrid GenerateNewRoom(int width, int height)
         {
             int rand = Rand.GetInstance().Next(0, 100);
@@ -26,7 +21,7 @@ namespace HexGridDungeon.WorldGeneration
                 return BuildSimpleRoom(width, height);
         } 
 
-
+		// Builds a simple room of all floors
         public HexGrid BuildSimpleRoom(int width, int height)
         {
 			HexGrid room = new HexGrid(width, height);			
@@ -37,6 +32,7 @@ namespace HexGridDungeon.WorldGeneration
             return room;
         }
 		
+		// Builds a simple room containing water (optimize to reuse code?)
         public HexGrid BuildLiquidRoom(int width, int height)
         {
 			HexGrid room = new HexGrid(width, height);
@@ -91,8 +87,10 @@ namespace HexGridDungeon.WorldGeneration
         }
 
 
-        // Helper functions
-        private void BuildRoomBorder(HexGrid _room)
+		#region Room Construction Helper Functions
+
+		// Builds a Hex border around a room (some null gaps on outside, this is okay.)
+		private void BuildRoomBorder(HexGrid _room)
         {
             // initial direction priority
             Dictionary<int, HexGrid.Direction> DirectionPriority = new Dictionary<int, HexGrid.Direction>();
@@ -139,6 +137,7 @@ namespace HexGridDungeon.WorldGeneration
             }
         }
 
+		// fills a room with the input tile
 		public void FillRoom(Tiles.Tile _tile, HexGrid _room)
 		{
 			Tuple<int, int> StartLocation = new Tuple<int, int>(0, 0);
@@ -159,6 +158,7 @@ namespace HexGridDungeon.WorldGeneration
 			FillRoomHelper(StartLocation.Item1, StartLocation.Item2, _tile, _room);
 		}
 
+		// Recursively fills null spaes in a room with the input tile
 		public void FillRoomHelper(int x, int y, Tiles.Tile _tile, HexGrid _room)
 		{
 			foreach(HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
@@ -171,7 +171,8 @@ namespace HexGridDungeon.WorldGeneration
             }
 		}
 
-        private void SetPrioityUpClockwise(Dictionary<int, HexGrid.Direction> _Dictionary)
+		// sets the direction priority of a direction to clockwise, starting at up
+		private void SetPrioityUpClockwise(Dictionary<int, HexGrid.Direction> _Dictionary)
         {
             _Dictionary.Clear();
             _Dictionary.Add(1, HexGrid.Direction.Up);
@@ -182,6 +183,7 @@ namespace HexGridDungeon.WorldGeneration
             _Dictionary.Add(6, HexGrid.Direction.LeftUp);
         }
 
+		// sets the direction priority of a direction to clockwise, starting at down
         private void SetPriorityDownClockwise(Dictionary<int, HexGrid.Direction> _Dictionary)
         {
             _Dictionary.Clear();
@@ -193,5 +195,7 @@ namespace HexGridDungeon.WorldGeneration
             _Dictionary.Add(5, HexGrid.Direction.RightUp);
             _Dictionary.Add(6, HexGrid.Direction.RightDown);
         }
-    }
+
+		#endregion
+	}
 }

@@ -13,26 +13,29 @@ using HexGridDungeon.WorldGeneration;
 
 namespace HexGridDungeon
 {
-	/// <summary>
-	/// This is the main type for your game
-	/// </summary>
-	public class Game1 : Microsoft.Xna.Framework.Game
+	public class GameMain : Microsoft.Xna.Framework.Game
 	{
+		// Data - XNA Default
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 		Texture2D SpriteTexture;
 		
-		DungeonGenerator hexDungeon;
+		// Data - Map Generation
+		DungeonGenerator hexDungeonGenerator;
+		HexGrid stage;
+
+		// Data - Drawing
 		int spriteHeight, spriteWidth;
 
 
-		HexGrid stage;
-
-		public Game1()
+		// Constructor
+		public GameMain()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			Content.RootDirectory = "Content";
 		}
+
+		#region XNA Core Code
 
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
@@ -42,16 +45,12 @@ namespace HexGridDungeon
 		/// </summary>
 		protected override void Initialize()
 		{
-			// TODO: Add your initialization logic here
-
 			base.Initialize();
             this.IsMouseVisible = true;
 
-			//hexDungeon = new DungeonGenerator(7, 7, this);
 			//RoomGenerator myRoomGenerator = new RoomGenerator(1, 20);
 			DungeonGenerator myDungeonGenerator = new DungeonGenerator(61, 27);
 
-			//stage = myRoomGenerator.GenerateNewRoom(10, 10);
 			//stage = myRoomGenerator.BuildWaterRoom(9, 9);
 			stage = myDungeonGenerator.Stage;
 		}
@@ -66,6 +65,7 @@ namespace HexGridDungeon
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 			SpriteTexture = this.Content.Load<Texture2D>("NullHexShape");
 
+			// Assuming all hex's are the same size as the null hex
 			spriteWidth = SpriteTexture.Width;
 			spriteHeight = SpriteTexture.Height;
 		}
@@ -91,13 +91,13 @@ namespace HexGridDungeon
 			// Allows the game to exit
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
 				this.Exit();
+
 			if (Keyboard.GetState().GetPressedKeys().Contains(Keys.Enter)) { pressed = true; }
 			while (Mouse.GetState().LeftButton == ButtonState.Pressed) { pressed = true; }
 
+			// regenerate the map if pressed = true
 			if (pressed)
 				this.Initialize();
-
-			// TODO: Add your update logic here
 
 			base.Update(gameTime);
 		}
@@ -111,57 +111,40 @@ namespace HexGridDungeon
 			GraphicsDevice.Clear(Color.Black);
 			spriteBatch.Begin();
 
-			Tuple<int, int> pos3Tup = XYConverter(0, 0);
-			Vector2 pos;
+			Tuple<int, int> PixelPosition = CoordinateConverter(0, 0);
+			Vector2 VectorPixelPosition;
 
+			// For every cell in the stage
 			for (int i = 0; i < stage.Width; i++)
 			{
 				for (int j = 0; j < stage.Height; j++)
 				{
+					// Get position
+					PixelPosition = CoordinateConverter(i, j);
+					VectorPixelPosition = new Vector2(PixelPosition.Item1, PixelPosition.Item2);
 
-					pos3Tup = XYConverter(i, j);
-					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
-                    if (stage.GetTile(new Tuple<int, int>(i, j)) != null)
+					// Load sprite if hex tile is not null
+					if (stage.GetTile(new Tuple<int, int>(i, j)) != null)
                         SpriteTexture = GetSpriteTexture(stage.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
-                    else
+					// Else load a placeholder null hex
+					else
                         SpriteTexture = this.Content.Load<Texture2D>("NullHexShape");
-                    spriteBatch.Draw(SpriteTexture, pos, Color.White);
+
+					// Draw code
+					spriteBatch.Draw(SpriteTexture, VectorPixelPosition, Color.White);
 				}
 			}
 
 			spriteBatch.End();
-			// TODO: Add your drawing code here
 
 			base.Draw(gameTime);
 		}
 
-		public void DrawState(HexGrid _hexGrid)
-		{
-			GraphicsDevice.Clear(Color.Black);
-			spriteBatch.Begin();
+		#endregion
 
-			Tuple<int, int> pos3Tup = XYConverter(0, 0);
-			Vector2 pos;
 
-			for (int i = 0; i < _hexGrid.Width; i++)
-			{
-				for (int j = 0; j < _hexGrid.Height; j++)
-				{
-
-					pos3Tup = XYConverter(i, j);
-					pos = new Vector2(pos3Tup.Item1, pos3Tup.Item2);
-                    if (_hexGrid.GetTile(new Tuple<int, int>(i, j)) != null)
-                        SpriteTexture = GetSpriteTexture(_hexGrid.GetTile(new Tuple<int, int>(i, j)).GetSpriteID);
-                    else
-                        SpriteTexture = this.Content.Load<Texture2D>("NullHexShape");
-                    spriteBatch.Draw(SpriteTexture, pos, Color.White);
-				}
-			}
-
-			spriteBatch.End();
-		}
-
-		protected Tuple<int, int> XYConverter(int x, int y)
+		// Helper functions
+		protected Tuple<int, int> CoordinateConverter(int x, int y)
 		{
 			int newX = 0;
 			int newY = 0;

@@ -9,13 +9,14 @@ namespace HexGridDungeon
 {
     public class HexGrid
     {
+		// Definitions
         public enum Direction { Up, RightUp, RightDown, Down, LeftDown, LeftUp};
 
-        // Data
+        // Data - Data Structure
         private Tile[,] Grid;
 
 
-        // properties
+        // Properties
         public int Width
         {
             get { return Grid.GetLength(0); }
@@ -25,10 +26,11 @@ namespace HexGridDungeon
             get { return Grid.GetLength(1); }
         }
 
+
         // Contructors
         public HexGrid()
         {
-            Grid = new Tile[50, 50];
+            Grid = new Tile[21, 21];
         }
 
         public HexGrid(int size)
@@ -42,12 +44,15 @@ namespace HexGridDungeon
         }
 
 
-        // Traversal Logic
-		public Tuple<int, int> GetNextValidStep(Tuple<int, int> currentCoordinate, Direction dir)
+        #region Traversal Logic
+
+        // Gets the cell 2 units away in the given direction from the current cell
+        public Tuple<int, int> GetNextValidStep(Tuple<int, int> currentCoordinate, Direction dir)
 		{
 			return GetNextValidCoordinate(GetNextValidCoordinate(currentCoordinate, dir), dir);
 		}
 
+        // Gets the cell 1 unit away in the given direction from the current cell
         public Tuple<int, int> GetNextValidCoordinate(Tuple<int, int> currentCoordinate, Direction dir)
         {
 			if (currentCoordinate == null)
@@ -139,6 +144,7 @@ namespace HexGridDungeon
                 return null;
         }
 
+        // returns true if coordinate exists in hexgrid, false otherwise
         public bool IsValidCoordinate(Tuple<int, int> coordinate)
         {
             if (coordinate == null)
@@ -154,6 +160,7 @@ namespace HexGridDungeon
                 return true;
         }
 
+        // returns the direction given two cells that are one step away from eachother
         public Direction GetStepDirection(Tuple<int, int> current, Tuple<int, int> next)
         {
             foreach (HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
@@ -169,8 +176,12 @@ namespace HexGridDungeon
             return Direction.Down;
         }
 
-        // Tile Get/Set Logic
-        public bool SetTile(Tuple<int, int> coordinate, Tile NewTile)
+		#endregion
+
+		#region Tile Accessor Logic
+
+		// sets tile at location in hexgrid to input tile
+		public bool SetTile(Tuple<int, int> coordinate, Tile NewTile)
         {
             if(IsValidCoordinate(coordinate))
             {
@@ -181,6 +192,7 @@ namespace HexGridDungeon
                 return false;
         }
 
+		// sets the border of hexgrid to input tile
 		public void SetBorder(Tile _tile)
 		{
 			for (int x = 0; x < Width; x++)
@@ -196,6 +208,7 @@ namespace HexGridDungeon
 			}
 		}
 
+		// setss tiles at first and second location in a step to input tile
         public void SetStep(Tuple<int, int> Location, Direction _dir, Tile _tile)
         {
             // set first and second tiles in step to input tile
@@ -203,6 +216,7 @@ namespace HexGridDungeon
             SetTile(GetNextValidCoordinate(GetNextValidCoordinate(Location, _dir), _dir), _tile);
         }
 
+		// gets the tile at a location
 		public Tile GetTile(Tuple<int, int> coordinate)
         {
             if (IsValidCoordinate(coordinate))
@@ -210,5 +224,7 @@ namespace HexGridDungeon
             else
                 return null;
 		}
+
+		#endregion
 	}
 }

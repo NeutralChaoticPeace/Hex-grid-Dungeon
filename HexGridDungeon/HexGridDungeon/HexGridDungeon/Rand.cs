@@ -7,11 +7,13 @@ namespace HexGridDungeon
 {
     public class Rand
     {
+		// Data
         private static Rand Instance = null;
         private Random rand;
         private int seed = -1;
 
-        // singleton private constructor
+
+        // Constructors
         private Rand()
         {
             if(0 <= seed)
@@ -20,7 +22,6 @@ namespace HexGridDungeon
                 rand = new Random();
         }
 
-        // singleton get instance
         public static Rand GetInstance()
         {
             if (Instance == null)
@@ -30,7 +31,7 @@ namespace HexGridDungeon
         }
 
 
-        // rand functions
+        // Random class wrapper functions
         public int Next()
         {
             return rand.Next();
@@ -46,5 +47,4 @@ namespace HexGridDungeon
             return rand.Next(minValue, maxValue);
         }
     }
-
 }
