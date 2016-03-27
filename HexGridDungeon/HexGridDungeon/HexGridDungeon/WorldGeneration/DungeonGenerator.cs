@@ -76,7 +76,7 @@ namespace HexGridDungeon.WorldGeneration
         }
 
 
-        // Procedural Generation
+        // BORDERS
         private void GenerateBorderWalls()
         {
             //for(int x = 0; x < stage.Width; x++)
@@ -351,18 +351,7 @@ namespace HexGridDungeon.WorldGeneration
             return false;
         }
 
-        // Tile Specific Operations
-        private void CreateWall(Tuple<int, int> coordinate)
-        {
-            if (stage.IsValidCoordinate(coordinate))
-                stage.SetTile(coordinate, new Tiles.TileTypes.Wall());
-        }
 
-        private void CreateFloor(Tuple<int, int> coordinate)
-        {
-            if (stage.IsValidCoordinate(coordinate))
-                stage.SetTile(coordinate, new Tiles.TileTypes.Floor());
-        }
-
+        // DEAD ENDS ?
     }
 }
