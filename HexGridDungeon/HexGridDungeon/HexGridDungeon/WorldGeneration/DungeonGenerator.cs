@@ -13,7 +13,8 @@ namespace HexGridDungeon.WorldGeneration
         private HexGrid stage;
 
 
-        HashSet<HexGrid> DungeonRooms = new HashSet<HexGrid>();
+        // DungeonRooms<x, y, room>
+        HashSet<Tuple<int, int, HexGrid>> DungeonRooms = new HashSet<Tuple<int, int, HexGrid>>();
         HashSet<Tuple<int, int>> DungeonPaths = new HashSet<Tuple<int, int>>();
         HashSet<Tuple<int, int>> DungeonEntries = new HashSet<Tuple<int, int>>();
 
@@ -157,7 +158,7 @@ namespace HexGridDungeon.WorldGeneration
             {
                 HexGrid room = roomGenerator.GenerateNewRoom(TrySizeX, TrySizeY);
                 if (TryPlaceRoom(TryPlaceX, TryPlaceY, room))
-                    DungeonRooms.Add(room);
+                    DungeonRooms.Add(new Tuple<int, int, HexGrid>(TryPlaceX, TryPlaceY, room));
             }
         }
 
@@ -275,43 +276,80 @@ namespace HexGridDungeon.WorldGeneration
         // ENTRIES
         private void GenerateEntries()
         {
-            foreach(HexGrid room in DungeonRooms)
+            foreach(Tuple<int, int, HexGrid> roomData in DungeonRooms)
             {
-                GenerateEntry(room);
+                GenerateEntry(roomData);
             }
         }
 
-        private void GenerateEntry(HexGrid room)
+        private void GenerateEntry(Tuple<int, int, HexGrid> _roomData)
         {
             // get list of possible doors
-            List<Tuple<int, int>> PossibleEntries = GetPossibleEntries(room);
-            Tuple<int, int> Entry = PossibleEntries[Rand.GetInstance().Next(0, PossibleEntries.Count)];
+            List<Tuple<int, int>> PossibleEntries = GetPossibleEntries(_roomData);
 
-            // place door
-            room.SetTile(Entry, new Tiles.TileTypes.Floor());
-            
+            if(PossibleEntries.Count > 0)
+            {
+                Tuple<int, int> Entry = PossibleEntries[Rand.GetInstance().Next(0, PossibleEntries.Count)];
 
-            // 50% chance for N+1 doors
-            if (Rand.GetInstance().Next(0, 100) <= 50)
-                GenerateEntry(room);
+                Entry = new Tuple<int, int>(Entry.Item1 + _roomData.Item1, Entry.Item2);
+                Entry = new Tuple<int, int>(Entry.Item1, Entry.Item2 + _roomData.Item2);
+                // place door
+                if (stage.SetTile(Entry, new Tiles.TileTypes.Floor()))
+                    // 50% chance for N+1 doors
+                    if (Rand.GetInstance().Next(0, 100) <= 50)
+                        GenerateEntry(_roomData);
+            }
         }
 
-        private List<Tuple<int, int>> GetPossibleEntries(HexGrid _room)
+        private List<Tuple<int, int>> GetPossibleEntries(Tuple<int, int, HexGrid> _roomData)
         {
             List<Tuple<int, int>> ReturnList = new List<Tuple<int, int>>();
 
-            for(int x = 0; x < _room.Width; x++)
+            for(int x = 0; x < _roomData.Item3.Width; x++)
             {
-                for (int y = 0; y < _room.Height; y++)
+                for (int y = 0; y < _roomData.Item3.Height; y++)
                 {
-                    if (_room.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.Wall)
-                        ReturnList.Add(new Tuple<int, int>(x, y));
+                    if (_roomData.Item3.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.Wall)
+                        if(IsPossibleEntry(new Tuple<int, int>(x, y), _roomData))
+                            ReturnList.Add(new Tuple<int, int>(x, y));
                 }
             }
 
             return ReturnList;
         }
 
+        private bool IsPossibleEntry(Tuple<int, int> _Location, Tuple<int, int, HexGrid> _roomData)
+        {
+            _Location = new Tuple<int, int>(_Location.Item1 + _roomData.Item1, _Location.Item2);
+            _Location = new Tuple<int, int>(_Location.Item1, _Location.Item2 + _roomData.Item2);
+
+            // UP && DOWN
+            if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Up)) is Tiles.TileTypes.Wall)
+                if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Down)) is Tiles.TileTypes.Wall)
+                    if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftDown)) is Tiles.TileTypes.Floor)
+                        if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftUp)) is Tiles.TileTypes.Floor)
+                            if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightDown)) is Tiles.TileTypes.Floor)
+                                if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightUp)) is Tiles.TileTypes.Floor)
+                                    return true;
+            // LEFT UP && RIGHT DOWN
+            if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Up)) is Tiles.TileTypes.Floor)
+                if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Down)) is Tiles.TileTypes.Floor)
+                    if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftDown)) is Tiles.TileTypes.Floor)
+                        if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftUp)) is Tiles.TileTypes.Wall)
+                            if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightDown)) is Tiles.TileTypes.Wall)
+                                if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightUp)) is Tiles.TileTypes.Floor)
+                                    return true;
+            // LEFT DOWN && RIGHT UP
+            if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Up)) is Tiles.TileTypes.Floor)
+                if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.Down)) is Tiles.TileTypes.Floor)
+                    if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftDown)) is Tiles.TileTypes.Wall)
+                        if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.LeftUp)) is Tiles.TileTypes.Floor)
+                            if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightDown)) is Tiles.TileTypes.Floor)
+                                if (stage.GetTile(stage.GetNextValidCoordinate(_Location, HexGrid.Direction.RightUp)) is Tiles.TileTypes.Wall)
+                                    return true;
+            // Otherwise:
+            return false;
+        }
 
         // Tile Specific Operations
         private void CreateWall(Tuple<int, int> coordinate)
