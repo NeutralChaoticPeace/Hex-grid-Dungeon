@@ -9,7 +9,7 @@ namespace HexGridDungeon
 {
     public class HexGrid
     {
-        public enum Direction { Up, Down, LeftUp, LeftDown, RightUp, RightDown};
+        public enum Direction { Up, RightUp, RightDown, Down, LeftDown, LeftUp};
 
         // Data
         private Tile[,] Grid;

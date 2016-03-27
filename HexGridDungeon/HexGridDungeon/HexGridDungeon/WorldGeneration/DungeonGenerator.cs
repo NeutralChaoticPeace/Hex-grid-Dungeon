@@ -18,6 +18,8 @@ namespace HexGridDungeon.WorldGeneration
         HashSet<Tuple<int, int>> DungeonPaths = new HashSet<Tuple<int, int>>();
         HashSet<Tuple<int, int>> DungeonEntries = new HashSet<Tuple<int, int>>();
 
+        HashSet<HashSet<Tuple<int, int>>> TriDeadends = new HashSet<HashSet<Tuple<int, int>>>();
+
         // Properties
         public int Width
         {
@@ -77,7 +79,9 @@ namespace HexGridDungeon.WorldGeneration
 
 			while (FindDeadEnds());
 
-			//GenerateDFSTokens();
+            //GenerateDFSTokens();
+
+            DetectTriSets();
 
 		}
 
@@ -426,6 +430,8 @@ namespace HexGridDungeon.WorldGeneration
 			RemoveDeadEnds(nextX, nextY);
 		}
 
+
+        // LADDERS
 		private void GenerateLadders()
 		{
 			List<Tuple<int, int>> possibleLadders = new List<Tuple<int, int>>();
@@ -448,78 +454,89 @@ namespace HexGridDungeon.WorldGeneration
 					stage.SetTile(possibleLadders[Rand.GetInstance().Next(0, possibleLadders.Count)], new Tiles.TileTypes.PortalTypes.DownLadder());
 			}
 		}
-		//private void GenerateDFSTokens()
-		//{
-		//	foreach(var entry in DungeonEntries)
-		//	{
-		//		DFSHelper(entry);
-		//	}
-		//	foreach(var entry in DungeonEntries)
-		//	{
-		//		DFSHelper(entry);
-		//	}
-
-		//	bool bubble = false;
-		//	for(int x = 0; x < stage.Width; x++)
-		//	{
-		//		for (int y = 0; y < stage.Height; y++)
-		//		{
-		//			if (stage.GetTile(new Tuple<int, int>(x, y)) is Tiles.TileTypes.LiquidTypes.Blood)
-		//			{
-		//				bubble = false;
-		//				foreach(HexGrid.Direction dir in Enum.GetValues(typeof(HexGrid.Direction)))
-		//				{
-		//					if (stage.GetTile(stage.GetNextValidCoordinate(new Tuple<int, int>(x, y), dir)) is Tiles.TileTypes.LiquidTypes.Blood)
-		//						bubble = true;
-		//				}
-		//				if (bubble == false)
-		//				{
-		//					stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.FloorTypes.StoneFloor());
-		//				}
-		//			}
-
-		//		}
-		//	}
 
 
-		//}
+        // TRI DEAD ENDS
 
-		//private void DFSHelper(Tuple<int, int> location)
-		//{
-		//	HashSet<Tuple<int, int>> visitedLocations = new HashSet<Tuple<int, int>>();
+        private void DetectTriSets()
+        {
+            for(int x = 0; x < stage.Width; x++)
+            {
+                for (int y = 0; y < stage.Height; y++)
+                {
+                    HashSet<Tuple<int, int>> PossibleTriSet = IsTriSet(new Tuple<int, int>(x, y));
+                    if (PossibleTriSet != null)
+                    {
+                        // tri set detected
+                        TriDeadends.Add(PossibleTriSet);
+                    }
+                        
+                }
+            }
 
-		//	DFSRecursiveHelper(location, visitedLocations, 0);
-		//}
+            // mark dead ends
+            foreach(var set in TriDeadends)
+            {
+                foreach (Tuple<int, int> cell in set)
+                {
+                    stage.SetTile(cell, new Tiles.TileTypes.LiquidTypes.Blood());
+                }
+            }
+ 
+        }
 
-		//private void DFSRecursiveHelper(Tuple<int, int> location, HashSet<Tuple<int, int>> visited, int x)
-		//{
-		//	// get all locations we could travel to
-		//	// random pick one and go there
-		//	visited.Add(location);
-		//	List<Tuple<int, int>> toVisit = new List<Tuple<int, int>>();
+        private HashSet<Tuple<int, int>> IsTriSet(Tuple<int,int> _Location)
+        {
+            Tuple<int, int> AdjacentFloor_1 = null;
+            Tuple<int, int> AdjacentFloor_2 = null;
 
-		//	foreach (HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
-		//	{
-		//		if (stage.GetTile(stage.GetNextValidCoordinate(location, value)) is Tiles.TileTypes.Floor)
-		//		{
-		//			if (DungeonPaths.Contains(stage.GetNextValidCoordinate(location, value)))
-		//				if (!visited.Contains(stage.GetNextValidCoordinate(location, value)))
-		//					if(!DungeonEntries.Contains(stage.GetNextValidCoordinate(location, value)))
-		//						toVisit.Add(stage.GetNextValidCoordinate(location, value));
-		//		}
-		//	}
+            if (DungeonPaths.Contains(_Location))
+            {
+                foreach (HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
+                {
+                    Tuple<int, int> temp = stage.GetNextValidCoordinate(new Tuple<int, int>(_Location.Item1, _Location.Item2), value);
 
-		//	if (toVisit.Count == 0)
-		//	{
-		//		if (x > 6)
-		//			stage.SetTile(location, new Tiles.TileTypes.LiquidTypes.Blood());
-		//		return;
-		//	}
-		//	else
-		//	{
-		//		Tuple<int, int> nextLocation = toVisit[Rand.GetInstance().Next(0, toVisit.Count)];
-		//		DFSRecursiveHelper(nextLocation, visited, x + 1);
-		//	}
-		//}
+                    if (DungeonPaths.Contains(temp))
+                    {
+                        if (stage.GetTile(temp) is Tiles.TileTypes.Floor)
+                        {
+
+                            if (AdjacentFloor_1 == null)
+                                AdjacentFloor_1 = temp;
+                            else if (AdjacentFloor_2 == null)
+                            {
+                                foreach (HexGrid.Direction value2 in Enum.GetValues(typeof(HexGrid.Direction)))
+                                {
+                                    int checkX = stage.GetNextValidCoordinate(temp, value2).Item1;
+                                    int checkY = stage.GetNextValidCoordinate(temp, value2).Item2;
+
+                                    if (checkX == AdjacentFloor_1.Item1 && checkY == AdjacentFloor_1.Item2)
+                                        AdjacentFloor_2 = temp;
+                                }
+                            }
+                            else
+                                return null;
+                        }
+                    }
+                }
+            }
+            if (AdjacentFloor_1 != null && AdjacentFloor_2 != null)
+            {
+                HashSet<Tuple<int, int>> ReturnSet = new HashSet<Tuple<int, int>>();
+
+                ReturnSet.Add(_Location);
+                ReturnSet.Add(AdjacentFloor_1);
+                ReturnSet.Add(AdjacentFloor_2);
+                return ReturnSet;
+            }
+
+            return null;
+        }
+
+        private void TryPopulateTriSetDeadEnd(Tuple<int, int> _Location)
+        {
+            
+            
+        }
     }
 }
