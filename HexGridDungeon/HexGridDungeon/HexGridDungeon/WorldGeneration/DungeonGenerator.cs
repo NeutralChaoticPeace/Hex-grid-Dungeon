@@ -73,6 +73,8 @@ namespace HexGridDungeon.WorldGeneration
 
             GenerateEntries();
 
+			GenerateLadders();
+
 			while (FindDeadEnds());
 
 			//GenerateDFSTokens();
@@ -441,9 +443,9 @@ namespace HexGridDungeon.WorldGeneration
 			for (int i = 0; i < Math.Max(2, 0.2 * possibleLadders.Count); i++)
 			{
 				if(i % 2 == 0)
-					stage.SetTile(possibleLadders[Rand.GetInstance().Next(0, possibleLadders.Count)], new Tiles.TileTypes.LiquidTypes.Blood());
+					stage.SetTile(possibleLadders[Rand.GetInstance().Next(0, possibleLadders.Count)], new Tiles.TileTypes.PortalTypes.UpLadder());
 				else
-					stage.SetTile(possibleLadders[Rand.GetInstance().Next(0, possibleLadders.Count)], new Tiles.TileTypes.LiquidTypes.Blood());
+					stage.SetTile(possibleLadders[Rand.GetInstance().Next(0, possibleLadders.Count)], new Tiles.TileTypes.PortalTypes.DownLadder());
 			}
 		}
 		//private void GenerateDFSTokens()
