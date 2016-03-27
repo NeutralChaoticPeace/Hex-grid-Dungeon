@@ -65,6 +65,7 @@ namespace HexGridDungeon.WorldGeneration
 
             GeneratePaths();
 
+			ConvertNullToWall();
         }
 
 
@@ -169,6 +170,18 @@ namespace HexGridDungeon.WorldGeneration
 
             return true;
         }
+
+		private void ConvertNullToWall()
+		{
+			for(int x = 0; x < stage.Width; x++)
+			{
+				for (int y = 0; y < stage.Height; y++)
+				{
+					if (stage.GetTile(new Tuple<int, int>(x, y)) == null)
+						stage.SetTile(new Tuple<int, int>(x, y), new Tiles.TileTypes.Wall());
+				}
+			}
+		}
 
         private bool TryPlaceRoom(int _x, int _y, HexGrid _room)
         {
