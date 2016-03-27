@@ -88,6 +88,8 @@ namespace HexGridDungeon
 			// Allows the game to exit
 			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
 				this.Exit();
+			if (Keyboard.GetState().IsKeyDown(Keys.Enter))
+				this.Initialize();
 
 			// TODO: Add your update logic here
 

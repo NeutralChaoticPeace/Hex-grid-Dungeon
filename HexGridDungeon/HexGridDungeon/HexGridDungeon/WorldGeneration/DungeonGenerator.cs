@@ -140,9 +140,9 @@ namespace HexGridDungeon.WorldGeneration
             int TryPlaceY = Rand.GetInstance().Next(2, stage.Height - 3);
 
             // enforce odd room location
-            if (TryPlaceX % 2 == 0)
+            if (TryPlaceX % 2 == 1)
                 TryPlaceX += 1;
-            if (TryPlaceY % 2 == 0)
+            if (TryPlaceY % 2 == 1)
                 TryPlaceY += 1;
 
             // check new room.
