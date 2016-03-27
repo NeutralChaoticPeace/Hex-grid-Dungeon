@@ -72,20 +72,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StairsHexSprite.png">
-      <Name>StairsHexSprite</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="StairHexPlatform.png">
-      <Name>StairHexPlatform</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="StoneWallHexSprite.png">
       <Name>StoneWallHexSprite</Name>
       <Importer>TextureImporter</Importer>
@@ -102,6 +88,20 @@
   <ItemGroup>
     <Compile Include="StoneFloorHexSprite.png">
       <Name>StoneFloorHexSprite</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="UpLadderHexSprite.png">
+      <Name>UpLadderHexSprite</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DownLadderHexSprite.png">
+      <Name>DownLadderHexSprite</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
