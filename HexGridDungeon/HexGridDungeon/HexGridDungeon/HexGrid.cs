@@ -187,6 +187,13 @@ namespace HexGridDungeon
 			}
 		}
 
+        public void SetStep(Tuple<int, int> Location, Direction _dir, Tile _tile)
+        {
+            // set first and second tiles in step to input tile
+            SetTile(GetNextValidCoordinate(Location, _dir), _tile);
+            SetTile(GetNextValidCoordinate(GetNextValidCoordinate(Location, _dir), _dir), _tile);
+        }
+
 		public Tile GetTile(Tuple<int, int> coordinate)
         {
             if (IsValidCoordinate(coordinate))

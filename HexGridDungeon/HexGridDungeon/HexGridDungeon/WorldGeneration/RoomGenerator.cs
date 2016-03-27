@@ -24,8 +24,8 @@ namespace HexGridDungeon.WorldGeneration
 
             if (rand <= 50)
                 return BuildSimpleRoom(width, height);
-            else if (50 < rand && rand <= 100)
-                return BuildWaterRoom(width, height);
+            //else if (50 < rand && rand <= 100)
+            //    return BuildWaterRoom(width, height);
             else
                 return BuildSimpleRoom(width, height);
         } 
@@ -34,8 +34,10 @@ namespace HexGridDungeon.WorldGeneration
         public HexGrid BuildSimpleRoom(int width, int height)
         {
 			HexGrid room = new HexGrid(width, height);
-			room.SetBorder(new Tiles.TileTypes.Wall());
-			room.SetArea("floor", width - 2, height - 2, 1, 1);			
+            //room.SetBorder(new Tiles.TileTypes.Wall());
+            //room.SetArea("floor", width - 2, height - 2, 1, 1);			
+
+            BuildRoomBorder(room);
 
             return room;
         }
@@ -57,6 +59,68 @@ namespace HexGridDungeon.WorldGeneration
 			room.SetArea("liquid", poolWidth, poolHeight, poolX, poolY);
 
             return room;
+        }
+
+
+        // Helper functions
+        private void BuildRoomBorder(HexGrid _room)
+        {
+            // initial direction priority
+            Dictionary<int, HexGrid.Direction> DirectionPriority = new Dictionary<int, HexGrid.Direction>();
+            Tuple<int, int> StartLocation = new Tuple<int, int>(1, 1);
+            Tuple<int, int> CurrentLocation = new Tuple<int, int>(1, 1);
+            SetPrioityUpClockwise(DirectionPriority);
+
+            _room.SetTile(StartLocation, new Tiles.TileTypes.Wall());
+
+            for(int j = 0; j < 100; j++)
+            {
+                for(int i = 1; i <= 6; i++)
+                {
+                    if (_room.GetNextValidStep(CurrentLocation, DirectionPriority[i]) != null)
+                    {
+                        // base case:
+                        if(_room.GetNextValidStep(CurrentLocation, DirectionPriority[i]) == StartLocation)
+                        {
+                            _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
+                            return;
+                        }
+
+                        // otherwise:
+                        _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
+                        CurrentLocation = _room.GetNextValidStep(CurrentLocation, DirectionPriority[i]);
+
+                        // when to switch direction priority
+                        if (i >= 5)
+                            SetDownClockwisePriority(DirectionPriority);
+
+                        break;
+                    }
+                        
+                }
+            }
+        }
+
+        private void SetPrioityUpClockwise(Dictionary<int, HexGrid.Direction> _Dictionary)
+        {
+            _Dictionary.Clear();
+            _Dictionary.Add(1, HexGrid.Direction.Up);
+            _Dictionary.Add(2, HexGrid.Direction.RightUp);
+            _Dictionary.Add(3, HexGrid.Direction.RightDown);
+            _Dictionary.Add(4, HexGrid.Direction.Down);
+            _Dictionary.Add(5, HexGrid.Direction.LeftDown);
+            _Dictionary.Add(6, HexGrid.Direction.LeftUp);
+        }
+
+        private void SetDownClockwisePriority(Dictionary<int, HexGrid.Direction> _Dictionary)
+        {
+            _Dictionary.Clear();
+            _Dictionary.Add(1, HexGrid.Direction.Down);
+            _Dictionary.Add(2, HexGrid.Direction.LeftDown);
+            _Dictionary.Add(3, HexGrid.Direction.LeftUp);
+            _Dictionary.Add(4, HexGrid.Direction.Up);
+            _Dictionary.Add(5, HexGrid.Direction.RightUp);
+            _Dictionary.Add(6, HexGrid.Direction.RightDown);
         }
     }
 }
