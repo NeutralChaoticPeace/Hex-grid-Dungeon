@@ -172,11 +172,11 @@ namespace HexGridDungeon.WorldGeneration
 
         private bool TryPlaceRoom(int _x, int _y, HexGrid _room)
         {
-            for(int x = _x; x < _room.Width + _x; x++)
+            for(int x = 0; x < _room.Width; x++)
             {
-                for (int y = _y; y < _room.Height + _y; y++)
+                for (int y = 0; y < _room.Height; y++)
                 {
-                    stage.SetTile(new Tuple<int, int>(x, y), _room.GetTile(new Tuple<int, int>(x, y)));
+                    stage.SetTile(new Tuple<int, int>(x + _x, y + _y), _room.GetTile(new Tuple<int, int>(x, y)));
                 }
             }
             

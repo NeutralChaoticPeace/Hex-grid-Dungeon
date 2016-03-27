@@ -46,7 +46,7 @@ namespace HexGridDungeon.WorldGeneration
 			HexGrid room = new HexGrid(width, height);
 			room.SetBorder(new Tiles.TileTypes.Wall());
 
-			int poolWidth = Rand.GetInstance().Next(1, height - 4);
+			int poolWidth = Rand.GetInstance().Next(1, width - 4);
 			int poolHeight = Rand.GetInstance().Next(1, height - 4);
 
 			room.SetArea("floor", width - 2, height - 2, 1, 1);
@@ -58,6 +58,5 @@ namespace HexGridDungeon.WorldGeneration
 
             return room;
         }
-
     }
 }
