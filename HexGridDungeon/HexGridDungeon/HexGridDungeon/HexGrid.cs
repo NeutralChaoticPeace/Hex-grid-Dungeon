@@ -81,10 +81,10 @@ namespace HexGridDungeon
             // Left and Up
             else if (dir == Direction.LeftUp)
             {
-                if(currentCoordinate.Item1 % 2 == 0)
-                    NextCoordinate = new Tuple<int, int>(currentCoordinate.Item1 - 1, currentCoordinate.Item2 - 1);
-                else
+                if(currentCoordinate.Item1 % 2 == 1)
                     NextCoordinate = new Tuple<int, int>(currentCoordinate.Item1 - 1, currentCoordinate.Item2);
+                else
+                    NextCoordinate = new Tuple<int, int>(currentCoordinate.Item1 - 1, currentCoordinate.Item2 - 1);
 
                 if (IsValidCoordinate(NextCoordinate))
                     return NextCoordinate;
@@ -95,10 +95,10 @@ namespace HexGridDungeon
             // Left and Down
             else if (dir == Direction.LeftDown)
             {
-                if (currentCoordinate.Item1 % 2 == 1)
+                if (currentCoordinate.Item1 % 2 == 0)
                     NextCoordinate = new Tuple<int, int>(currentCoordinate.Item1 - 1, currentCoordinate.Item2);
                 else
-                    NextCoordinate = new Tuple<int, int>(currentCoordinate.Item1 - 1, currentCoordinate.Item2 - 1);
+                    NextCoordinate = new Tuple<int, int>(currentCoordinate.Item1 - 1, currentCoordinate.Item2 + 1);
 
                 if (IsValidCoordinate(NextCoordinate))
                     return NextCoordinate;

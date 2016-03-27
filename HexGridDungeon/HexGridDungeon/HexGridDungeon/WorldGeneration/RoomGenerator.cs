@@ -38,6 +38,7 @@ namespace HexGridDungeon.WorldGeneration
             //room.SetArea("floor", width - 2, height - 2, 1, 1);			
 
             BuildRoomBorder(room);
+			FillRoom(new Tiles.TileTypes.Floor(), room);
 
             return room;
         }
@@ -78,20 +79,20 @@ namespace HexGridDungeon.WorldGeneration
             _room.SetTile(StartLocation, new Tiles.TileTypes.Wall());
             VisitedLocations.Add(StartLocation);
 
-            for(int j = 0; j < 1000; j++)
+            while(true)
             {
                 for(int i = 1; i <= 6; i++)
                 {
                     NextLocation = _room.GetNextValidStep(CurrentLocation, DirectionPriority[i]);
                     // if next location is a new location that is valid...
+                    // base case:
+                    if(NextLocation != null && NextLocation.Item1 == StartLocation.Item1 && NextLocation.Item2 == StartLocation.Item2)
+                    {
+                        _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
+                        return;
+                    }
                     if (NextLocation != null && !VisitedLocations.Contains(NextLocation))
                     {
-                        // base case:
-                        if(NextLocation == StartLocation)
-                        {
-                            _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
-                            return;
-                        }
 
                         // otherwise:
                         _room.SetStep(CurrentLocation, DirectionPriority[i], new Tiles.TileTypes.Wall());
@@ -109,6 +110,38 @@ namespace HexGridDungeon.WorldGeneration
                 }
             }
         }
+
+		public void FillRoom(Tiles.Tile _tile, HexGrid _room)
+		{
+			Tuple<int, int> StartLocation = new Tuple<int, int>(0, 0);
+			bool superBreak = false;
+
+			for (int x = 0; x < _room.Width && !superBreak; x++)
+			{
+				for (int y = 0; y < _room.Height && !superBreak; y++)
+				{
+					if (_room.GetTile(new Tuple<int, int>(x, y)) == null)
+					{
+						StartLocation = new Tuple<int, int>(x, y);
+						superBreak = true;
+					}
+				}
+			}
+
+			FillRoomHelper(StartLocation.Item1, StartLocation.Item2, _tile, _room);
+		}
+
+		public void FillRoomHelper(int x, int y, Tiles.Tile _tile, HexGrid _room)
+		{
+			foreach(HexGrid.Direction value in Enum.GetValues(typeof(HexGrid.Direction)))
+			{
+				if (_room.GetTile(_room.GetNextValidCoordinate(new Tuple<int, int>(x, y), value)) == null)
+				{
+					_room.SetTile(_room.GetNextValidCoordinate(new Tuple<int, int>(x, y), value), _tile);
+					FillRoomHelper(_room.GetNextValidCoordinate(new Tuple<int, int>(x, y), value).Item1, _room.GetNextValidCoordinate(new Tuple<int, int>(x, y), value).Item2, _tile, _room);
+				}
+            }
+		}
 
         private void SetPrioityUpClockwise(Dictionary<int, HexGrid.Direction> _Dictionary)
         {
