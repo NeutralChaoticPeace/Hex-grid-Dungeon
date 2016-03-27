@@ -67,8 +67,8 @@ namespace HexGridDungeon.WorldGeneration
         {
             // initial direction priority
             Dictionary<int, HexGrid.Direction> DirectionPriority = new Dictionary<int, HexGrid.Direction>();
-            Tuple<int, int> StartLocation = new Tuple<int, int>(1, 1);
-            Tuple<int, int> CurrentLocation = new Tuple<int, int>(1, 1);
+            Tuple<int, int> StartLocation = new Tuple<int, int>(0, 0);
+            Tuple<int, int> CurrentLocation = StartLocation;
             SetPrioityUpClockwise(DirectionPriority);
 
             _room.SetTile(StartLocation, new Tiles.TileTypes.Wall());

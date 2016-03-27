@@ -49,7 +49,7 @@ namespace HexGridDungeon
 
 			//hexDungeon = new DungeonGenerator(7, 7, this);
 			//RoomGenerator myRoomGenerator = new RoomGenerator(1, 20);
-            DungeonGenerator myDungeonGenerator = new DungeonGenerator(160, 90);
+            DungeonGenerator myDungeonGenerator = new DungeonGenerator(61, 27);
 
             //stage = myRoomGenerator.GenerateNewRoom(10, 10);
             stage = myDungeonGenerator.Stage;
