@@ -10,7 +10,6 @@ namespace HexGridDungeon.WorldGeneration
         // Data
         private static readonly int MinRoomSize = 5;
         private static readonly int MaxRoomSize = 15;
-        private Game1 gameRef;
         private HexGrid stage;
 
 
@@ -34,29 +33,31 @@ namespace HexGridDungeon.WorldGeneration
 
 
         // Constructors
-        public DungeonGenerator(Game1 game)
+        public DungeonGenerator()
         {
-            stage = new HexGrid();
-            Initialize(game);
+            Initialize(21, 25);
         }
 
-        public DungeonGenerator(int size, Game1 game)
+        public DungeonGenerator(int size)
         {
-            stage = new HexGrid(size);
-            Initialize(game);
+            Initialize(size, size);
         }
 
-        public DungeonGenerator(int width, int height, Game1 game)
+        public DungeonGenerator(int width, int height)
         {
-            stage = new HexGrid(width, height);
-            Initialize(game);
+            Initialize(width, height);
         }
 
 
         // Initialize
-        private void Initialize(Game1 game)
+        private void Initialize(int width, int height)
         {
-            gameRef = game;
+            // Make dungeon odd sized
+            if (width % 2 == 0)
+                width += 1;
+            if (height % 2 == 0)
+                height += 1;
+            stage = new HexGrid(width, height);
 
             GenerateBorderWalls();
 
@@ -70,53 +71,86 @@ namespace HexGridDungeon.WorldGeneration
         // Procedural Generation
         private void GenerateBorderWalls()
         {
-            for(int x = 0; x < stage.Width; x++)
-            {
-                CreateWall(new Tuple<int, int>(x, 0));
-                CreateWall(new Tuple<int, int>(x, stage.Height - 1));
-            }
+            //for(int x = 0; x < stage.Width; x++)
+            //{
+            //    CreateWall(new Tuple<int, int>(x, 0));
+            //    CreateWall(new Tuple<int, int>(x, stage.Height - 1));
+            //}
 
-            for (int y = 0; y < stage.Height; y++)
-            {
-                CreateWall(new Tuple<int, int>(0, y));
-                CreateWall(new Tuple<int, int>(stage.Width - 1, y));
-            }
+            //for (int y = 0; y < stage.Height; y++)
+            //{
+            //    CreateWall(new Tuple<int, int>(0, y));
+            //    CreateWall(new Tuple<int, int>(stage.Width - 1, y));
+            //}
+
+            stage.SetBorder(new Tiles.TileTypes.Wall());
         }
 
 
         // ROOMS
         private void GenerateRooms()
-        {
-            RoomGenerator roomGenerator = new RoomGenerator(MinRoomSize, MaxRoomSize);
+        {         
             int RoomTries = Math.Max(stage.Width, stage.Height);
 
             for (int i = 0; i < RoomTries; i++)
             {
-                // Initial room square
-                int TrySize = Rand.GetInstance().Next(MinRoomSize, (int)Math.Floor(MaxRoomSize * 0.75));
-                int TrySizeX = TrySize;
-                int TrySizeY = TrySize;
+                GenerateRoom();
+            }
+        }
 
-                // rectangle modifier
-                if (Rand.GetInstance().Next(0, 100) <= 50)
-                {
-                    if (Rand.GetInstance().Next() % 2 == 0)
-                        TrySizeX += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeX));
-                    else
-                        TrySizeY += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeY));
-                }
+        private void GenerateRoom()
+        {
+            RoomGenerator roomGenerator = new RoomGenerator(MinRoomSize, MaxRoomSize);
 
-                // room coordinates
-                int TryPlaceX = Rand.GetInstance().Next(0, stage.Width - 1);
-                int TryPlaceY = Rand.GetInstance().Next(0, stage.Height - 1);
+            // Initial room square
+            int TrySize = Rand.GetInstance().Next(MinRoomSize, (int)Math.Floor(MaxRoomSize * 0.75));
+            int TrySizeX = TrySize;
+            int TrySizeY = TrySize;
 
-                // check new room.
-                if (IsValidRoomPlacement(TryPlaceX, TryPlaceY, TrySizeX, TrySizeY))
-                {
-                    HexGrid room = roomGenerator.GenerateNewRoom(TrySizeX, TryPlaceY);
-                    if (TryPlaceRoom(room))
-                        DungeonRooms.Add(room);
-                }
+            // rectangle modifier
+            if (Rand.GetInstance().Next(0, 100) <= 50)
+            {
+                if (Rand.GetInstance().Next() % 2 == 0)
+                    TrySizeX += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeX));
+                else
+                    TrySizeY += Rand.GetInstance().Next(1, (MaxRoomSize - TrySizeY));
+            }
+
+            // enforce odd room width / height
+            if (TrySizeX % 2 == 0)
+                TrySizeX += 1;
+            if (TrySizeY % 2 == 0)
+                TrySizeY += 1;
+
+            // enforce room size
+            if (TrySizeX > MaxRoomSize)
+                TrySizeX = MaxRoomSize;
+
+            if (TrySizeY > MaxRoomSize)
+                TrySizeY = MaxRoomSize;
+
+            if (TrySizeX < MinRoomSize)
+                TrySizeX = MinRoomSize;
+    
+            if (TrySizeY < MinRoomSize)
+                TrySizeY = MinRoomSize;
+
+            // room coordinates
+            int TryPlaceX = Rand.GetInstance().Next(2, stage.Width - 3);
+            int TryPlaceY = Rand.GetInstance().Next(2, stage.Height - 3);
+
+            // enforce odd room location
+            if (TryPlaceX % 2 == 0)
+                TryPlaceX += 1;
+            if (TryPlaceY % 2 == 0)
+                TryPlaceY += 1;
+
+            // check new room.
+            if (IsValidRoomPlacement(TryPlaceX, TryPlaceY, TrySizeX, TrySizeY))
+            {
+                HexGrid room = roomGenerator.GenerateNewRoom(TrySizeX, TrySizeY);
+                if (TryPlaceRoom(TryPlaceX, TryPlaceY, room))
+                    DungeonRooms.Add(room);
             }
         }
 
@@ -136,9 +170,17 @@ namespace HexGridDungeon.WorldGeneration
             return true;
         }
 
-        private bool TryPlaceRoom(HexGrid _room)
+        private bool TryPlaceRoom(int _x, int _y, HexGrid _room)
         {
-            return false;
+            for(int x = _x; x < _room.Width + _x; x++)
+            {
+                for (int y = _y; y < _room.Height + _y; y++)
+                {
+                    stage.SetTile(new Tuple<int, int>(x, y), _room.GetTile(new Tuple<int, int>(x, y)));
+                }
+            }
+            
+            return true;
         }
 
 
