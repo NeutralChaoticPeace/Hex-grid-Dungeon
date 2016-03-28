@@ -1,0 +1,18 @@
+TODO:
+
+1.	Hex Grid Major Upgrade:
+
+	1.1	Reimplemented HexGrid using logic from:
+			"www.redblobgames.com/grids/hexagons/implementation.html"
+			// This will clean up and polish the hexagon class substantially.
+		
+	1.2	Update the dungeon/room generation code to use the changed hexclass.
+	
+	1.3	Update the drawing code to adjust for the new hex class.
+			In particular, make use of the map and layout classes as needed to support a future game.
+			
+	1.4	Check that the random class works given a seed. (can hardcode this at compile time if needed).
+			//This is what lets us create maps procedurally, not randomly.
+			
+2.
+	
